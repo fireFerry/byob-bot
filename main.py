@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2'
+byob_bot_version = '1.2.1'
 
 bot = commands.Bot(command_prefix='$', help_command=None)
 
@@ -15,6 +15,7 @@ bot = commands.Bot(command_prefix='$', help_command=None)
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online)
+    await bot.change_presence(activity=discord.Game(name="byob | $commands"))
     print(bot.user.name)
     print(bot.user.id)
 
