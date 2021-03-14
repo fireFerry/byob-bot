@@ -7,7 +7,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 byob_bot_version = '1.2'
 
-bot = commands.Bot(command_prefix='$')
+bot = commands.Bot(command_prefix='$', help_command=None)
 
 # changes the bot status to online and prints the bot name & id on start
 
