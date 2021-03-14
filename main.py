@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-version = '1.1'
+byob_bot_version = '1.1'
 
 bot = commands.Bot(command_prefix='$')
 
@@ -21,11 +21,11 @@ async def on_ready():
 @commands.is_owner()
 async def shutdown(ctx):
     await bot.change_presence(status=discord.Status.invisible)
-    await ctx.message.delete
-    msg = 'Byob Bot has been shut down.'
-    await ctx.send(msg)
+    await ctx.message.delete()
+    embed = discord.Embed(title="Shutdown", description="Byob Bot has been shut down.", color=0x5cffb0)
+    await ctx.send(embed=embed)
     await ctx.bot.logout()
-    exit()
+    print('Byob Bot has been shut down.')
 
 
 @bot.command(pass_context=True)
@@ -34,17 +34,17 @@ async def addrole(ctx, member: discord.Member, role: discord.Role):
     if role.name == 'Contributor':
         await member.add_roles(role)
         await ctx.message.delete()
-        msg = f'Added the {role.name} role to {member.name}'
-        await ctx.send(msg)
-    elif role.name == 'Ticket Blacklist:':
+        embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}", color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif role.name == 'Ticket Blacklist':
         await member.add_roles(role)
         await ctx.message.delete()
-        msg = f'Added the {role.name} role to {member.name}'
-        await ctx.send(msg)
+        embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}", color=0x5cffb0)
+        await ctx.send(embed=embed)
     else:
         await ctx.message.delete()
-        msg = f"{ctx.author.mention}, You don't have the permission to add that role."
-        await ctx.send(msg)
+        embed = discord.Embed(title="Error", description=f"{ctx.author.mention}, You don't have permission to add that role.", color=0x5cffb0)
+        await ctx.send(embed=embed)
 
 
 @bot.command(pass_context=True)
@@ -53,22 +53,24 @@ async def delrole(ctx, member: discord.Member, role: discord.Role):
     if role.name == 'Contributor':
         await member.remove_roles(role)
         await ctx.message.delete()
-        msg = f'Removed the {role.name} role from {member.name}'
-        await ctx.send(msg)
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}", color=0x5cffb0)
+        await ctx.send(embed=embed)
     elif role.name == 'Ticket Blacklist':
         await member.remove_roles(role)
         await ctx.message.delete()
-        msg = f'Removed the {role.name} role from {member.name}'
-        await ctx.send(msg)
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}", color=0x5cffb0)
+        await ctx.send(embed=embed)
     else:
         await ctx.message.delete()
-        msg = f"{ctx.author.mention}, You don't have the permission to remove that role."
-        await ctx.send(msg)
+        embed = discord.Embed(title="Error", description=f"{ctx.author.mention}, You don't have permission to remove that role.", color=0x5cffb0)
+        await ctx.send(embed=embed)
 
 
 @bot.command()
-async def version(ctx):
-    msg = f"I'm running on version {version}."
+async def status(ctx):
+    embed = discord.Embed(title="Status", description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms", color=0x5cffb0)
+    await ctx.message.delete()
+    await ctx.send(embed=embed)
 
 
 bot.run(TOKEN)
