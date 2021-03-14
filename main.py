@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.1'
+byob_bot_version = '1.2'
 
 bot = commands.Bot(command_prefix='$')
 
