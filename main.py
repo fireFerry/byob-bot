@@ -114,7 +114,7 @@ async def support(ctx):
 
 @bot.command()
 async def requirements(ctx):
-    embed = discord.Embed(title="Requirements", color=0x5cffb0)
+    embed = discord.Embed(title="Requirements",  escription="requirements for byob:", color=0x5cffb0)
     embed.add_field(name="OS", value="A Linux distribution", inline=False)
     embed.add_field(name="Software", value="**1.** Python 3 & pip\n**2.** Docker", inline=False)
     await ctx.mesasge.delete()
