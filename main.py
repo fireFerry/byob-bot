@@ -85,7 +85,7 @@ async def bugs(ctx):
 # support command
 
 
-@bot.command(aliases=['help'])
+@bot.command()
 async def support(ctx):
     embed = discord.Embed(title="Support", description="**1.** Ask your question, don't ask to ask.\n**2.** Be patient for support. Don't mention staff, this will result in a punishment.\n**3.** Don't repeat your questions, and don't put them in multiple channels.", color=0x5cffb0)
     await ctx.message.delete()
