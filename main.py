@@ -189,4 +189,4 @@ async def shutdown(ctx):
     print('Byob Bot has been shut down.')
 
 
-bot.run('NzA4MjgzODU2OTA5NzYyNjEx.XrVGvg.RPKzThut03NZ98L3D5SyE6zpuHQ')
+bot.run(TOKEN)
