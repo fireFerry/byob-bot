@@ -12,7 +12,7 @@ byob_bot_version = '1.2.3'
 # Gets the prefixes
 
 
-def get_prefix(ctx, message):
+def get_prefix(message):
     with open('prefixes.json', 'r') as f:
         prefixes = json.load(f)
     return prefixes[str(message.guild.id)]
@@ -231,7 +231,9 @@ async def changeprefix(ctx, prefix):
     with open('prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
 
-    await ctx.send(f'Prefix changed to: {prefix}')
+    await ctx.message.delete()
+    embed = discord.Embed(title="Prefix changed", description=f"Prefix changed to: {prefix}", color=0x5cffb0)
+    await ctx.send(embed=embed)
 
 # DEVELOPER COMMANDS
 
@@ -246,7 +248,7 @@ async def shutdown(ctx):
     embed = discord.Embed(title="Shutdown", description="Byob Bot has been shut down.", color=0x5cffb0)
     await ctx.send(embed=embed)
     await bot.close()
-    print('Byob Bot has been shut down.')
+    print(f'{bot.user.name} has been shut down.')
 
 
 bot.run(TOKEN)
