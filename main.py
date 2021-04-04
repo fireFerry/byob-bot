@@ -12,7 +12,7 @@ byob_bot_version = '1.2.3'
 # Gets the prefixes
 
 
-def get_prefix(message):
+def get_prefix(ctx, message):
     with open('prefixes.json', 'r') as f:
         prefixes = json.load(f)
     return prefixes[str(message.guild.id)]
