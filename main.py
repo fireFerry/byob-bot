@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.2.1'
+byob_bot_version = '1.2.2.2'
 
 bot = commands.Bot(command_prefix='$', help_command=None)
 
@@ -185,7 +185,7 @@ async def shutdown(ctx):
     await ctx.message.delete()
     embed = discord.Embed(title="Shutdown", description="Byob Bot has been shut down.", color=0x5cffb0)
     await ctx.send(embed=embed)
-    await ctx.bot.logout()
+    await bot.close()
     print('Byob Bot has been shut down.')
 
 
