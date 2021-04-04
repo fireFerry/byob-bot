@@ -2,12 +2,55 @@ import os
 import discord.ext
 from discord.ext import commands
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.2.2'
+byob_bot_version = '1.2.3'
 
-bot = commands.Bot(command_prefix='$', help_command=None)
+
+# Gets the prefixes
+
+
+def get_prefix(_, message):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+    return prefixes[str(message.guild.id)]
+
+
+bot = commands.Bot(
+    command_prefix=get_prefix,
+    help_command=None
+)
+
+
+# Loads the prefix into the json list
+
+
+@bot.event
+async def on_guild_join(guild):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes[str(guild.id)] = '$'
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
+
+# Removes the prefix from the json list
+
+
+@bot.event
+async def on_guild_remove(guild):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes.pop(str(guild.id))
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
 
 # changes the bot status to online and prints the bot name & id on start
 
@@ -173,6 +216,25 @@ async def delrole(ctx, member: discord.Member, role: discord.Role):
         embed = discord.Embed(title="Error", description=f"{ctx.author.mention}, You don't have permission to remove that role.", color=0x5cffb0)
         await ctx.send(embed=embed)
 
+
+# changeprefix command to change the prefix of the bot.
+
+
+@bot.command(pass_context=True)
+@commands.has_role('Support Team')
+async def changeprefix(ctx, prefix):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes[str(ctx.guild.id)] = prefix
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
+    await ctx.message.delete()
+    embed = discord.Embed(title="Prefix changed", description=f"Prefix changed to: {prefix}", color=0x5cffb0)
+    await ctx.send(embed=embed)
+
 # DEVELOPER COMMANDS
 
 # shutdown command, only useable by the owner.
@@ -186,7 +248,7 @@ async def shutdown(ctx):
     embed = discord.Embed(title="Shutdown", description="Byob Bot has been shut down.", color=0x5cffb0)
     await ctx.send(embed=embed)
     await bot.close()
-    print('Byob Bot has been shut down.')
+    print(f'{bot.user.name} has been shut down.')
 
 
 bot.run(TOKEN)
