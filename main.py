@@ -245,6 +245,12 @@ async def addrole(ctx, member: discord.Member, role: discord.Role):
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
+    elif role.name == 'Members':
+        await member.add_roles(role)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
     else:
         await ctx.message.delete()
         embed = discord.Embed(title="Error",
