@@ -63,6 +63,25 @@ async def on_ready():
     print(bot.user.id)
 
 
+# Gives the Member role after membership screening
+
+
+@bot.event
+async def on_member_update(before, after):
+    try:
+        role_name = 'Member'
+        role = discord.utils.get(before.guild.roles, name=role_name)
+        member = bot.get_guild(before.guild.id).get_member(before.id)
+        if before.bot or after.bot:
+            return
+        else:
+            if before.pending:
+                if not after.pending:
+                    await member.add_roles(role_name, atomic=True)
+    except AttributeError:
+        pass
+
+
 # GENERAL COMMANDS
 
 # status command to display the status of the bot
