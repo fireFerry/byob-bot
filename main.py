@@ -69,7 +69,7 @@ async def on_ready():
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
     if before.pending != after.pending:
-        role = discord.utils.get(before.guild.roles, name="Members)
+        role = discord.utils.get(before.guild.roles, name="Members")
         await after.add_roles(role)
 
 
