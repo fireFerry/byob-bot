@@ -312,7 +312,7 @@ async def changeprefix(ctx, prefix):
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
 async def userinfo(ctx, member: discord.Member):
-    time = datetime.datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
+    timecurrentlyutc = datetime.datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
     roles = [role.mention for role in member.roles]
     embed = discord.Embed(title=f"{member.name}{member.discriminator}", description=f"{member.mention}", color=0x5cffb0)
     embed.set_image(url=member.avatar_url)
@@ -328,7 +328,7 @@ async def userinfo(ctx, member: discord.Member):
         else '%d-%m-%Y')
                     )
     embed.add_field(name="**Roles:**", value=f"{roles}", inline=True)
-    embed.set_footer(text=f"{time}")
+    embed.set_footer(text=f"{timecurrentlyutc}")
     await ctx.message.delete()
     await ctx.send(embed=embed)
 
