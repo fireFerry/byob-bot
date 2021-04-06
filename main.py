@@ -3,6 +3,7 @@ import discord.ext
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
+import datetime
 import json
 
 load_dotenv()
@@ -301,6 +302,21 @@ async def changeprefix(ctx, prefix):
 
     await ctx.message.delete()
     embed = discord.Embed(title="Prefix changed", description=f"Prefix changed to: {prefix}", color=0x5cffb0)
+    await ctx.send(embed=embed)
+
+
+# userinfo command that displays information about the user.
+
+
+@bot.command(pass_context=True)
+@commands.has_role('Support Team')
+async def userinfo(ctx, member: discord.Member):
+    time = datetime.datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
+    embed = discord.Embed(title=f"{member.name}", description="{member.mention}", color=0x5cffb0)
+    embed.set_thumbnail(url="{member.avatar_url}")
+    embed.add_field(name="**Pending**", value=f"{member.pending}", inline=True)
+    embed.set_footer(text=f"{time}")
+    await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
