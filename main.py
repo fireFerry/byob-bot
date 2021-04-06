@@ -79,15 +79,12 @@ async def on_ready():
 #                     await member.add_roles(role_name, atomic=True)
 #     except AttributeError:
 #         pass
-@bot.event
-async def on_member_join(member: discord.Member):
-    print(f'{member} joined {member.guild}')
-
 
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
     if before.pending != after.pending:
-        print(f'before: {before.pending}, after: {after.pending}')
+        role = discord.utils.get(before.guild.roles, name="Member")
+        await after.add_roles(role)
 
 
 # GENERAL COMMANDS
