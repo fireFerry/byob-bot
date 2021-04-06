@@ -313,7 +313,7 @@ async def changeprefix(ctx, prefix):
 async def userinfo(ctx, member: discord.Member):
     time = datetime.datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
     embed = discord.Embed(title=f"{member.name}", description="{member.mention}", color=0x5cffb0)
-    embed.set_thumbnail(url="{member.avatar_url}")
+    embed.set_thumbnail(url=member.avatar_url)
     embed.add_field(name="**Pending**", value=f"{member.pending}", inline=True)
     embed.set_footer(text=f"{time}")
     await ctx.message.delete()
