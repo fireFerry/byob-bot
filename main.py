@@ -51,7 +51,7 @@ async def on_guild_remove(guild):
         json.dump(prefixes, f, indent=4)
 
 
-# changes the bot status to online and prints the bot name & id on start
+# Changes the bot status to online and prints the bot name & id on start
 
 
 @bot.event
@@ -64,21 +64,6 @@ async def on_ready():
 
 # Gives the Member role after membership screening
 
-
-# @bot.event
-# async def on_member_update(before, after):
-#     try:
-#         role_name = 'Member'
-#         role = discord.utils.get(before.guild.roles, name=role_name)
-#         member = bot.get_guild(before.guild.id).get_member(before.id)
-#         if before.bot or after.bot:
-#             return
-#         else:
-#             if before.pending:
-#                 if not after.pending:
-#                     await member.add_roles(role_name, atomic=True)
-#     except AttributeError:
-#         pass
 
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
