@@ -312,12 +312,15 @@ async def changeprefix(ctx, prefix):
 @commands.has_role('Support Team')
 async def userinfo(ctx, member: discord.Member):
     time = datetime.datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
+    created = member.created_at().strftime("%d-%m-%Y %H:%M:%S")
+    joined = member.joined_at().strftime("%d-%m-%Y %H:%M:%S")
+    roles = [role.mention for role in member.roles]
     embed = discord.Embed(title=f"{member.name}{member.discriminator}", description=f"{member.mention}", color=0x5cffb0)
     embed.set_image(url=member.avatar_url)
     embed.add_field(name="**Pending:**", value=f"{member.pending}", inline=True)
-    embed.add_field(name="**Created account at:**", value=f"{member.created_at}", inline=True)
-    embed.add_field(name="**Joined at:**", value=f"{member.joined_at}", inline=True)
-    embed.add_field(name="**Roles:**", value=f"{member.roles}", inline=True)
+    embed.add_field(name="**Created account at:**", value=f"{created}", inline=True)
+    embed.add_field(name="**Joined at:**", value=f"{joined}", inline=True)
+    embed.add_field(name="**Roles:**", value=f"{roles}", inline=True)
     embed.set_footer(text=f"{time}")
     await ctx.message.delete()
     await ctx.send(embed=embed)
