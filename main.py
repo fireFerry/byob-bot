@@ -9,7 +9,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.4'
+byob_bot_version = '1.2.5'
 intents = discord.Intents.default()
 intents.members = True
 
