@@ -80,23 +80,16 @@ async def on_ready():
 #                     await member.add_roles(role_name, atomic=True)
 #     except AttributeError:
 #         pass
+@bot.event
+async def on_member_join(member: discord.Member):
+    print(f'{member} joined {member.guild}')
 
 
 @bot.event
-async def on_member_update(before, after):
-    try:
-        role_id = 828890274754985984
-        role = discord.utils.get(before.guild.roles, id=role_id)
-        member = bot.get_guild(before.guild.id).get_member(before.id)
-        if before.bot or after.bot:
-            return
-        else:
-            if before.pending == True:
-                if after.pending == False:
-                    await member.add_roles(role, atomic=True)
+async def on_member_update(before: discord.Member, after: discord.Member):
+    if before.pending != after.pending:
+        print(f'before: {before.pending}, after: {after.pending}')
 
-    except AttributeError:
-        pass
 
 # GENERAL COMMANDS
 
