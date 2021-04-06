@@ -1,10 +1,11 @@
 import os
 import discord.ext
+import datetime
+import json
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-import datetime
-import json
+from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -312,14 +313,20 @@ async def changeprefix(ctx, prefix):
 @commands.has_role('Support Team')
 async def userinfo(ctx, member: discord.Member):
     time = datetime.datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
-    created = member.created_at().strftime("%d-%m-%Y %H:%M:%S")
-    joined = member.joined_at().strftime("%d-%m-%Y %H:%M:%S")
     roles = [role.mention for role in member.roles]
     embed = discord.Embed(title=f"{member.name}{member.discriminator}", description=f"{member.mention}", color=0x5cffb0)
     embed.set_image(url=member.avatar_url)
     embed.add_field(name="**Pending:**", value=f"{member.pending}", inline=True)
-    embed.add_field(name="**Created account at:**", value=f"{created}", inline=True)
-    embed.add_field(name="**Joined at:**", value=f"{joined}", inline=True)
+    embed.add_field(name='**Created account at:**', value=member.created_at.strftime(
+        'Today at %-H:%M' if member.created_at.date() == datetime.today().date()
+        else 'Yesterday at %-H:%M' if member.created_at.date() == (datetime.today() - timedelta(1)).date()
+        else '%d-%m-%Y')
+                    )
+    embed.add_field(name="**Joined at:**", value=member.joined_at.strftime(
+        'Today at %-H:%M' if member.joined_at.date() == datetime.today().date()
+        else 'Yesterday at %-H:%M' if member.joined_at.date() == (datetime.today() - timedelta(1)).date()
+        else '%d-%m-%Y')
+                    )
     embed.add_field(name="**Roles:**", value=f"{roles}", inline=True)
     embed.set_footer(text=f"{time}")
     await ctx.message.delete()
