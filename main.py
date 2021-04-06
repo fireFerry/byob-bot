@@ -1,13 +1,15 @@
 import os
 import discord.ext
+import datetime
+import json
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
-import json
+from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.4'
+byob_bot_version = '1.2.5'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -301,6 +303,33 @@ async def changeprefix(ctx, prefix):
 
     await ctx.message.delete()
     embed = discord.Embed(title="Prefix changed", description=f"Prefix changed to: {prefix}", color=0x5cffb0)
+    await ctx.send(embed=embed)
+
+
+# userinfo command that displays information about the user.
+
+
+@bot.command(pass_context=True)
+@commands.has_role('Support Team')
+async def userinfo(ctx, member: discord.Member):
+    timecurrentlyutc = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
+    roles = [role.mention for role in member.roles]
+    embed = discord.Embed(title=f"{member.name}{member.discriminator}", description=f"{member.mention}", color=0x5cffb0)
+    embed.set_image(url=member.avatar_url)
+    embed.add_field(name="**Pending:**", value=f"{member.pending}", inline=True)
+    embed.add_field(name='**Created account at:**', value=member.created_at.strftime(
+        'Today at %-H:%M' if member.created_at.date() == datetime.today().date()
+        else 'Yesterday at %-H:%M' if member.created_at.date() == (datetime.today() - timedelta(1)).date()
+        else '%d-%m-%Y')
+                    )
+    embed.add_field(name="**Joined at:**", value=member.joined_at.strftime(
+        'Today at %-H:%M' if member.joined_at.date() == datetime.today().date()
+        else 'Yesterday at %-H:%M' if member.joined_at.date() == (datetime.today() - timedelta(1)).date()
+        else '%d-%m-%Y')
+                    )
+    embed.add_field(name="**Roles:**", value=f"{roles}", inline=True)
+    embed.set_footer(text=f"{timecurrentlyutc}")
+    await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
