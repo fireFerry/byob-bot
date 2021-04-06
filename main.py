@@ -1,6 +1,7 @@
 import os
 import discord.ext
 from discord.ext import commands
+from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
 import json
 
@@ -70,6 +71,16 @@ async def on_member_update(before: discord.Member, after: discord.Member):
     if before.pending != after.pending:
         role = discord.utils.get(before.guild.roles, name="Member")
         await after.add_roles(role)
+
+
+# Ignores "command not found" errors.
+
+
+@bot.event
+async def on_command_error(_, error):
+    if isinstance(error, CommandNotFound):
+        return
+    raise error
 
 
 # GENERAL COMMANDS
