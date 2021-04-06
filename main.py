@@ -7,7 +7,7 @@ import json
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.3'
+byob_bot_version = '1.2.4'
 intents = discord.Intents.default()
 intents.members = True
 
