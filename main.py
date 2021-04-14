@@ -181,13 +181,13 @@ async def help(ctx):
 
             if str(reaction.emoji) == "u25b6" and cur_page != helppages:
                 cur_page += 1
-                embed.set_field_at(1, name=f'{contents_name[cur_page - 1]}', value=f'{contents_value[cur_page - 1]}')
+                embed.set_field_at(0, name=f'{contents_name[cur_page - 1]}', value=f'{contents_value[cur_page - 1]}')
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
 
             elif str(reaction.emoji) == "\u25c0" and cur_page > 1:
                 cur_page -= 1
-                embed.set_field_at(1, name=f'{contents_name[cur_page - 1]}', value=f'{contents_value[cur_page - 1]}')
+                embed.set_field_at(0, name=f'{contents_name[cur_page - 1]}', value=f'{contents_value[cur_page - 1]}')
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
 
