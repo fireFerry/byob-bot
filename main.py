@@ -22,7 +22,6 @@ def get_prefix(_, message):
         prefixes = json.load(f)
     return prefixes[str(message.guild.id)]
 
-
 # Gets the on/off status for auto-role
 
 
@@ -95,8 +94,11 @@ async def on_ready():
 
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
+    with open('autorole.json', 'r') as f:
+        autoroles = json.load(f)
     print(get_prefix)
     print(get_autorole)
+    print(autoroles)
     if get_autorole == 'on':
         if before.pending != after.pending:
             role = discord.utils.get(before.guild.roles, name="Members")
