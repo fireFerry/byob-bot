@@ -23,6 +23,15 @@ def get_prefix(_, message):
     return prefixes[str(message.guild.id)]
 
 
+# Gets the on/off status for auto-role
+
+
+def get_autorole(_, message):
+    with open('autorole.json', 'r') as f:
+        autoroles = json.load(f)
+    return autoroles[str(message.guild.id)]
+
+
 bot = commands.Bot(command_prefix=get_prefix, help_command=None, intents=intents)
 
 
@@ -39,6 +48,14 @@ async def on_guild_join(guild):
     with open('prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
 
+    with open('autorole.json', 'r') as f:
+        autoroles = json.load(f)
+
+    autoroles[str(guild.id)] = 'off'
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(autoroles, f, indent=4)
+
 
 # Removes the prefix from the json list
 
@@ -52,6 +69,14 @@ async def on_guild_remove(guild):
 
     with open('prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
+
+    with open('autorole.json', 'r') as f:
+        autoroles = json.load(f)
+
+    autoroles.pop(str(guild.id))
+
+    with open('autorole.json', 'w') as f:
+        json.dump(autoroles, f, indent=4)
 
 
 # Changes the bot status to online and prints the bot name & id on start
@@ -70,9 +95,10 @@ async def on_ready():
 
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
-    if before.pending != after.pending:
-        role = discord.utils.get(before.guild.roles, name="Members")
-        await after.add_roles(role)
+    if get_autorole == 'on':
+        if before.pending != after.pending:
+            role = discord.utils.get(before.guild.roles, name="Members")
+            await after.add_roles(role)
 
 
 # Ignores "command not found" errors.
@@ -304,6 +330,30 @@ async def changeprefix(ctx, prefix):
     await ctx.message.delete()
     embed = discord.Embed(title="Prefix changed", description=f"Prefix changed to: {prefix}", color=0x5cffb0)
     await ctx.send(embed=embed)
+
+
+# toggleautorole command to toggle automatically giving the Member role after membership screening
+
+
+@bot.command(pass_context=True)
+@commands.has_role('Support Team')
+async def toggleautorole(ctx):
+    if get_autorole == 'on':
+        with open('autorole.json', 'r') as f:
+            autoroles = json.load(f)
+
+        autoroles[str(ctx.guild.id)] = 'off'
+
+        with open('autorole.json', 'w') as f:
+            json.dump(autoroles, f, indent=4)
+    else:
+        with open('autorole.json', 'r') as f:
+            autoroles = json.load(f)
+
+        autoroles[str(ctx.guild.id)] = 'on'
+
+        with open('autorole.json', 'w') as f:
+            json.dump(autoroles, f, indent=4)
 
 
 # userinfo command that displays information about the user.
