@@ -166,6 +166,7 @@ async def help(ctx):
     message = await ctx.send(embed=embed)  # discord.Embed(title=f"Help Page {cur_page}/{helppages}":\n{contents[cur_page - 1]}")
     # getting the message object for editing and reacting
 
+    print(embed.fields)
     await message.add_reaction("\u25c0")
     await message.add_reaction("\u25b6")
 
