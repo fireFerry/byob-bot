@@ -180,7 +180,7 @@ async def help(ctx):
             # waiting for a reaction to be added - times out after x seconds, 60 in this
             # example
 
-            if str(reaction.emoji) == "u25b6" and cur_page != helppages:
+            if str(reaction.emoji) == "\u25b6" and cur_page != helppages:
                 cur_page += 1
                 embed.remove_field(0)
                 # embed.set_field_at(0, name=f'{contents_name[cur_page - 1]}', value=f'{contents_value[cur_page - 1]}')
