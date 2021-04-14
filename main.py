@@ -262,7 +262,7 @@ async def vps(ctx):
 @bot.command(aliases=['exe'])
 async def executable(ctx):
     embed = discord.Embed(title="Executable generation",
-                          description="If your executable doesn't generate correctly, here are some things you should check:\n**1.**Make sure you are using the latest version of byob and rebooted at least once.\n**2.**Run this command: sudo usermod -aG docker $USER && sudo chmod 666 /var/run/docker.sock, and reboot your system.\n**3.**If this still doesn't work, uninstall docker, and run startup.sh again, and reboot your system.\n**4.**If you tried all of this and it didn't help, you can try using pyinstaller to compile the python payload manually.",
+                          description="If your executable doesn't generate correctly, here are some things you should check:\n**1.** Make sure you are using the latest version of byob and rebooted at least once.\n**2.** Run this command: sudo usermod -aG docker $USER && sudo chmod 666 /var/run/docker.sock, and reboot your system.\n**3.** If this still doesn't work, uninstall docker, and run startup.sh again, and reboot your system.\n**4.** If you tried all of this and it didn't help, you can try using pyinstaller to compile the python payload manually.",
                           color=0x5cffb0)
     await ctx.message.delete()
     await ctx.send(embed=embed)
