@@ -132,22 +132,6 @@ async def status(ctx):
 # commands list
 
 
-# @bot.command()
-# async def help(ctx):
-#     embed = discord.Embed(title="Commands", description="These are my commands:", color=0x5cffb0)
-#     embed.add_field(name="General commands:",
-#                     value="**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you've found a bug in Byob Bot.",
-#                     inline=False)
-#     embed.add_field(name="Support commands:",
-#                     value="**$support:** Receiving help in the Discord.\n**$portforwarding:** Displays how to port forward.\n**$requirements:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.",
-#                     inline=False)
-#     embed.add_field(name="Staff commands:",
-#                     value="**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.", inline=False)
-#     embed.add_field(name="Developer commands:", value="**$shutdown:** Shutdown the bot completely.", inline=False)
-#     await ctx.message.delete()
-#     await ctx.send(embed=embed)
-
-
 @bot.command()
 async def help(ctx):
     await ctx.message.delete()
@@ -163,22 +147,17 @@ async def help(ctx):
     cur_page = 0
     embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
     embed.add_field(name=f'{contents_name[cur_page]}', value=f'{contents_value[cur_page]}')
-    message = await ctx.send(embed=embed)  # discord.Embed(title=f"Help Page {cur_page}/{helppages}":\n{contents[cur_page - 1]}")
-    # getting the message object for editing and reacting
-
+    message = await ctx.send(embed=embed)
     await message.add_reaction("\u25c0")
     await message.add_reaction("\u25b6")
+    await message.add_reaction("\u23f9")
 
-    def check(reaction, user):
-        return user == ctx.author and str(reaction.emoji) in ["\u25c0", "\u25b6"]
-        # This makes sure nobody except the command sender can interact with the "menu"
+    def check(reactiongiven, userreacting):
+        return userreacting == ctx.author and str(reactiongiven.emoji) in ["\u25c0", "\u25b6", "\u23f9"]
 
     while True:
         try:
             reaction, user = await bot.wait_for("reaction_add", timeout=60, check=check)
-            # waiting for a reaction to be added - times out after x seconds, 60 in this
-            # example
-
             if str(reaction.emoji) == "\u25b6" and cur_page != helppages:
                 cur_page += 1
                 embed.remove_field(0)
@@ -186,7 +165,6 @@ async def help(ctx):
                 embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
-
             elif str(reaction.emoji) == "\u25c0" and cur_page > 0:
                 cur_page -= 1
                 embed.remove_field(0)
@@ -194,15 +172,18 @@ async def help(ctx):
                 embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
-
+            elif str(reaction.emoji) == "\u23f9":
+                cur_page = 0
+                embed.remove_field(0)
+                embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
+                embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
+                await message.edit(embed=embed)
+                await message.remove_reaction(reaction, user)
             else:
                 await message.remove_reaction(reaction, user)
-                # removes reactions if the user tries to go forward on the last page or
-                # backwards on the first page
         except asyncio.TimeoutError:
             await message.delete()
             break
-            # ending the loop if user doesn't react after x seconds
 
 
 # ping command
