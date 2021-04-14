@@ -159,8 +159,8 @@ async def help(ctx):
                       "**$support:** Receiving help in the Discord.\n**$portforwarding:** Displays how to port forward.\n**$requirements:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.",
                       "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.",
                       "**$shutdown:** Shutdown the bot completely."]
-    helppages = 4
-    cur_page = 1
+    helppages = 3
+    cur_page = 0
     embed = discord.Embed(title=f"Help Page {cur_page}/{helppages}", color=0x5cffb0)
     embed.add_field(name=f'{contents_name[cur_page]}', value=f'{contents_value[cur_page]}')
     message = await ctx.send(embed=embed)  # discord.Embed(title=f"Help Page {cur_page}/{helppages}":\n{contents[cur_page - 1]}")
