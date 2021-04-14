@@ -151,21 +151,26 @@ async def status(ctx):
 @bot.command()
 async def help(ctx):
     # embed = discord.Embed(title="Commands", description="These are my commands:", color=0x5cffb0)
-    contents = ['name="General commands:", value="**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.", inline=False',
-                'name="Support commands:", value="**$support:** Receiving help in the Discord.\n**$portforwarding:** Displays how to port forward.\n**$requirements:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.", inline=False',
-                'name="Staff commands:", value="**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.", inline=False',
-                'name="Developer commands:", value="**$shutdown:** Shutdown the bot completely.", inline=False']
+    contents_name = ["General commands:",
+                     "Support commands:",
+                     "Staff commands:",
+                     "Developer commands:"]
+    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.",
+                      "**$support:** Receiving help in the Discord.\n**$portforwarding:** Displays how to port forward.\n**$requirements:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.",
+                      "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.",
+                      "**$shutdown:** Shutdown the bot completely."]
     helppages = 4
     cur_page = 1
     embed = discord.Embed(title=f"Help Page {cur_page}/{helppages}", color=0x5cffb0)
+    embed.add_field(name=f'{contents_name[cur_page]}', value=f'{contents_value[cur_page]}')
     message = await ctx.send(embed=embed)  # discord.Embed(title=f"Help Page {cur_page}/{helppages}":\n{contents[cur_page - 1]}")
     # getting the message object for editing and reacting
 
-    await message.add_reaction("\u25b6")
     await message.add_reaction("\u25c0")
+    await message.add_reaction("\u25b6")
 
     def check(reaction, user):
-        return user == ctx.author and str(reaction.emoji) in ["\u25b6", "\u25c0"]
+        return user == ctx.author and str(reaction.emoji) in ["\u25c0", "\u25b6"]
         # This makes sure nobody except the command sender can interact with the "menu"
 
     while True:
@@ -174,15 +179,15 @@ async def help(ctx):
             # waiting for a reaction to be added - times out after x seconds, 60 in this
             # example
 
-            if str(reaction.emoji) == "\u25c0" and cur_page != helppages:
+            if str(reaction.emoji) == "u25b6" and cur_page != helppages:
                 cur_page += 1
-                embed.set_field_at(1, f"{contents[cur_page - 1]}")
+                embed.set_field_at(1, name=f'{contents_name[cur_page - 1]}', value=f'{contents_value[cur_page - 1]}')
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
 
-            elif str(reaction.emoji) == "\u25b6" and cur_page > 1:
+            elif str(reaction.emoji) == "\u25c0" and cur_page > 1:
                 cur_page -= 1
-                embed.set_field_at(1, f"{contents[cur_page - 1]}")
+                embed.set_field_at(1, name=f'{contents_name[cur_page - 1]}', value=f'{contents_value[cur_page - 1]}')
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
 
