@@ -161,7 +161,7 @@ async def help(ctx):
                       "**$shutdown:** Shutdown the bot completely."]
     helppages = 3
     cur_page = 0
-    embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages}", color=0x5cffb0)
+    embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
     embed.add_field(name=f'{contents_name[cur_page]}', value=f'{contents_value[cur_page]}')
     message = await ctx.send(embed=embed)  # discord.Embed(title=f"Help Page {cur_page}/{helppages}":\n{contents[cur_page - 1]}")
     # getting the message object for editing and reacting
@@ -182,15 +182,15 @@ async def help(ctx):
             if str(reaction.emoji) == "\u25b6" and cur_page != helppages:
                 cur_page += 1
                 embed.remove_field(0)
-                embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages}", color=0x5cffb0)
+                embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
                 embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
 
-            elif str(reaction.emoji) == "\u25c0" and cur_page > 1:
+            elif str(reaction.emoji) == "\u25c0" and cur_page > 0:
                 cur_page -= 1
                 embed.remove_field(0)
-                embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages}", color=0x5cffb0)
+                embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
                 embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
