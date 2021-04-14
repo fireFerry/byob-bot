@@ -95,6 +95,7 @@ async def on_ready():
 
 @bot.event
 async def on_member_update(before: discord.Member, after: discord.Member):
+    print(get_autorole)
     if get_autorole == 'on':
         if before.pending != after.pending:
             role = discord.utils.get(before.guild.roles, name="Members")
