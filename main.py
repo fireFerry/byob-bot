@@ -348,12 +348,18 @@ async def toggleautorole(ctx):
         autoroles[str(ctx.guild.id)] = 'off'
         with open('autorole.json', 'w') as f:
             json.dump(autoroles, f, indent=4)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Autorole toggled", description=f"Disabled autorole", color=0x5cffb0)
+        await ctx.send(embed=embed)
     else:
         with open('autorole.json', 'r') as f:
             autoroles = json.load(f)
         autoroles[str(ctx.guild.id)] = 'on'
         with open('autorole.json', 'w') as f:
             json.dump(autoroles, f, indent=4)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Autorole toggled", description=f"Enabled autorole", color=0x5cffb0)
+        await ctx.send(embed=embed)
 
 
 # userinfo command that displays information about the user.
