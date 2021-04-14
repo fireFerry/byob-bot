@@ -341,20 +341,17 @@ async def changeprefix(ctx, prefix):
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
 async def toggleautorole(ctx):
-    if get_autorole == 'on':
-        with open('autorole.json', 'r') as f:
-            autoroles = json.load(f)
-
+    with open('autorole.json', 'r') as f:
+        autoroles = json.load(f)
+    autorolestatus = autoroles[f"{ctx.guild.id}"]
+    if autorolestatus == 'on':
         autoroles[str(ctx.guild.id)] = 'off'
-
         with open('autorole.json', 'w') as f:
             json.dump(autoroles, f, indent=4)
     else:
         with open('autorole.json', 'r') as f:
             autoroles = json.load(f)
-
         autoroles[str(ctx.guild.id)] = 'on'
-
         with open('autorole.json', 'w') as f:
             json.dump(autoroles, f, indent=4)
 
