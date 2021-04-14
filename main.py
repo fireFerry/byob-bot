@@ -97,9 +97,7 @@ async def on_ready():
 async def on_member_update(before: discord.Member, after: discord.Member):
     with open('autorole.json', 'r') as f:
         autoroles = json.load(f)
-    with open('autorole.json', 'w') as f:
-        json.dump(autoroles, f, indent=4)
-    print(autoroles)
+    print(autoroles[after.guild.id])
     if get_autorole == 'on':
         if before.pending != after.pending:
             role = discord.utils.get(before.guild.roles, name="Members")
