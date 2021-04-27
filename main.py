@@ -145,9 +145,10 @@ async def help(ctx):
                       "**$shutdown:** Shutdown the bot completely."]
     helppages = 3
     cur_page = 0
+    timecurrentlyutc = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S UTC")
     embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
     embed.add_field(name=f'{contents_name[cur_page]}', value=f'{contents_value[cur_page]}')
-    embed.set_footer(text=f"Requested by {ctx.author.name}")
+    embed.set_footer(text=f"Requested by {ctx.author.name} at {timecurrentlyutc}")
     message = await ctx.send(embed=embed)
     await message.add_reaction("\u25c0")
     await message.add_reaction("\u25b6")
@@ -164,6 +165,7 @@ async def help(ctx):
                 embed.remove_field(0)
                 embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
                 embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
+                embed.set_footer(text=f"Requested by {ctx.author.name} at {timecurrentlyutc}")
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
             elif str(reaction.emoji) == "\u25c0" and cur_page > 0:
@@ -171,6 +173,7 @@ async def help(ctx):
                 embed.remove_field(0)
                 embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
                 embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
+                embed.set_footer(text=f"Requested by {ctx.author.name} at {timecurrentlyutc}")
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
             elif str(reaction.emoji) == "\u23f9":
@@ -178,6 +181,7 @@ async def help(ctx):
                 embed.remove_field(0)
                 embed = discord.Embed(title=f"Help Page {cur_page + 1}/{helppages + 1}", color=0x5cffb0)
                 embed.add_field(name=f"{contents_name[cur_page]}", value=f"{contents_value[cur_page]}", inline=False)
+                embed.set_footer(text=f"Requested by {ctx.author.name} at {timecurrentlyutc}")
                 await message.edit(embed=embed)
                 await message.remove_reaction(reaction, user)
             else:
