@@ -127,7 +127,7 @@ async def on_message(message):
         embed = discord.Embed(title="Mentioned!",
                               description=f"My prefix in this server: **{currentprefix}**\nHelp command: **{currentprefix}help**",
                               color=0x5cffb0)
-        await ctx.send(embed=embed)
+        await message.channel.send(embed=embed)
 
 
 # GENERAL COMMANDS
