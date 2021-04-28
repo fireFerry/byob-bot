@@ -115,6 +115,21 @@ async def on_command_error(_, error):
     raise error
 
 
+# respond on mention
+
+
+@bot.event
+async def on_message(ctx, message):
+    if bot.user.mentioned_in(message):
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+        currentprefix = prefixes[f"{ctx.guild.id}"]
+        embed = discord.Embed(title="Mentioned!",
+                              description=f"My prefix in this server: **{currentprefix}**\nHelp command: **{currentprefix}help**",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+
+
 # GENERAL COMMANDS
 
 # status command to display the status of the bot
