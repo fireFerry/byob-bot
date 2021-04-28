@@ -10,7 +10,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.6.1'
+byob_bot_version = '1.2.6.2'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -113,6 +113,22 @@ async def on_command_error(_, error):
     if isinstance(error, CommandNotFound):
         return
     raise error
+
+
+# respond on mention
+
+
+@bot.event
+async def on_message(message):
+    if bot.user.mentioned_in(message):
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+        currentprefix = prefixes[f"{message.guild.id}"]
+        embed = discord.Embed(title="Mentioned!",
+                              description=f"My prefix in this server: **{currentprefix}**\nHelp command: **{currentprefix}help**",
+                              color=0x5cffb0)
+        await message.channel.send(embed=embed)
+    await bot.process_commands(message)
 
 
 # GENERAL COMMANDS
