@@ -128,7 +128,7 @@ async def on_message(message):
                               description=f"My prefix in this server: **{currentprefix}**\nHelp command: **{currentprefix}help**",
                               color=0x5cffb0)
         await message.channel.send(embed=embed)
-    return
+    await bot.process_commands(message)
 
 
 # GENERAL COMMANDS
