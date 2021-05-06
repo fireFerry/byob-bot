@@ -1,6 +1,7 @@
 import os
 import discord.ext
 import datetime
+import time
 import json
 import asyncio
 from discord.ext import commands
@@ -506,7 +507,9 @@ async def reactionrole(ctx):
     embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.", inline=False)
     message_ = await ctx.send(embed=embed)
     await message_.add_reaction("🤖")
+    time.sleep(1)
     await message_.add_reaction("💻")
+    time.sleep(1)
     await message_.add_reaction("🟡")
 
 
