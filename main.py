@@ -498,12 +498,17 @@ async def userinfo(ctx, member: discord.Member):
 
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
-async def reactionrole(ctx, msgid):
+async def reactionrole(ctx):
     await ctx.message.delete()
-    msg = ctx.fetch_message(msgid)
-    await msg.add_reaction("\u1f916")
-    await msg.add_reaction("\u1f4bb")
-    await msg.add_reaction("\u1f7e1")
+    embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!", color=0x5cffb0)
+    embed.add_field(name="Cybersecurity Expert", value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
+    embed.add_field(name="Ethical Hacker", value="React with :laptop: to receive the Ethical Hacker role.", inline=False)
+    embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.", inline=False)
+    message_ = await ctx.send(embed=embed)
+    await message_.add_reaction("\u1f916")
+    await message_.add_reaction("\u1f4bb")
+    await message_.add_reaction("\u1f7e1")
+
 
 # DEVELOPER COMMANDS
 
