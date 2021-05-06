@@ -91,6 +91,26 @@ async def on_ready():
     print(bot.user.id)
 
 
+# Give role on reaction
+
+
+@bot.event
+async def on_raw_reaction_add(payload=None):
+    msgid = 839553468661366804
+    guild = discord.utils.get(bot.guilds, name="Byob Bot")
+    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+    role_pc = discord.utils.get(guild.roles, name="Python Coder")
+    if payload is not None:
+        if payload.message_id == msgid:
+            if str(payload.emoji) == "\u1f916":
+                await payload.member.add_roles(role_ce)
+            elif str(payload.emoji) == "\u1f4bb":
+                await payload.member.add_roles(role_eh)
+            elif str(payload.emoji) == "\u1f7e1":
+                await payload.member.add_roles(role_pc)
+
+
 # Gives the Member role after membership screening
 
 
@@ -472,6 +492,18 @@ async def userinfo(ctx, member: discord.Member):
     await ctx.message.delete()
     await ctx.send(embed=embed)
 
+
+# reactionrole command
+
+
+@bot.command(pass_context=True)
+@commands.has_role('Support Team')
+async def reactionrole(ctx, msgid):
+    await ctx.message.delete
+    msg = ctx.get_message(msgid)
+    await msg.add_reaction("\u1f916")
+    await msg.add_reaction("\u1f4bb")
+    await msg.add_reaction("\u1f7e1")
 
 # DEVELOPER COMMANDS
 
