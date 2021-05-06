@@ -500,7 +500,7 @@ async def userinfo(ctx, member: discord.Member):
 @commands.has_role('Support Team')
 async def reactionrole(ctx, msgid):
     await ctx.message.delete()
-    msg = ctx.get_message(msgid)
+    msg = ctx.fetch_message(msgid)
     await msg.add_reaction("\u1f916")
     await msg.add_reaction("\u1f4bb")
     await msg.add_reaction("\u1f7e1")
