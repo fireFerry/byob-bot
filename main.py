@@ -295,7 +295,7 @@ async def support(ctx):
 @bot.command(aliases=['portforward', 'pfw', ''])
 async def portforwarding(ctx):
     embed = discord.Embed(title="Port forwarding",
-                          description="Port forwarding is done on your router, and may be called port mapping, or virtual servers too. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to your machine that you're hosing byob on.",
+                          description="Port forwarding is done on your router, and may be called port mapping, or virtual servers too. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to your machine that you're hosting byob on.",
                           color=0x5cffb0)
     await ctx.message.delete()
     await ctx.send(embed=embed)
