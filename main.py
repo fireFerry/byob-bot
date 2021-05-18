@@ -116,7 +116,7 @@ async def on_raw_reaction_add(payload=None):
 
 
 @bot.event
-async def on_raw_reaction_add(payload=None):
+async def on_raw_reaction_remove(payload=None):
     msgid = 839908556978389022
     guild = discord.utils.get(bot.guilds, name="Byob Bot")
     role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
