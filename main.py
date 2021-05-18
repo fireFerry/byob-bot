@@ -552,4 +552,24 @@ async def shutdown(ctx):
     print(f'{bot.user.name} has been shut down.')
 
 
+# dev-status command, only usable by the owner.
+
+
+@bot.command()
+@commands.is_owner()
+async def dev_status(ctx):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+    currentprefix = prefixes[f"{ctx.guild.id}"]
+    with open('autorole.json', 'r') as f:
+        autoroles = json.load(f)
+    autorolestatus = autoroles[f"{ctx.guild.id}"]
+    embed = discord.Embed(title="Dev Status",
+                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}")
+    embed.add_field(name="**Server stats**",
+                    value=f"**Name**: {ctx.guild.name}\n**Members**: {ctx.guild.member_count}\n**Description**: {ctx.guild.description}",
+                    inline=False)
+    await ctx.send(embed=embed)
+
+
 bot.run(TOKEN)
