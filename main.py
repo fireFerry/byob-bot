@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.6.3'
+byob_bot_version = '1.2.7'
 intents = discord.Intents.default()
 intents.members = True
 
