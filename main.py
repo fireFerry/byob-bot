@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.7.1'
+byob_bot_version = '1.2.7.2'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -152,13 +152,13 @@ async def on_raw_reaction_remove(payload=None):
                 await member.remove_roles(role_pc)
         elif payload.message_id == msgid2:
             if str(payload.emoji) == "🤖":
-                member = guild.get_member(int(payload.user_id))
+                member = guild2.get_member(int(payload.user_id))
                 await member.remove_roles(role_ce2)
             elif str(payload.emoji) == "💻":
-                member = guild.get_member(int(payload.user_id))
+                member = guild2.get_member(int(payload.user_id))
                 await member.remove_roles(role_eh2)
             elif str(payload.emoji) == "🟡":
-                member = guild.get_member(int(payload.user_id))
+                member = guild2.get_member(int(payload.user_id))
                 await member.remove_roles(role_pc2)
 
 
