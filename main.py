@@ -1,6 +1,7 @@
 import os
 import discord.ext
 import datetime
+import time
 import json
 import asyncio
 from discord.ext import commands
@@ -10,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.6.2'
+byob_bot_version = '1.2.6.3'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -89,6 +90,49 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="byob | $help"))
     print(bot.user.name)
     print(bot.user.id)
+
+
+# Give role on reaction
+
+
+@bot.event
+async def on_raw_reaction_add(payload=None):
+    msgid = 839908556978389022
+    guild = discord.utils.get(bot.guilds, name="Byob Bot")
+    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+    role_pc = discord.utils.get(guild.roles, name="Python Coder")
+    if payload is not None:
+        if payload.message_id == msgid:
+            if str(payload.emoji) == "🤖":
+                await payload.member.add_roles(role_ce)
+            elif str(payload.emoji) == "💻":
+                await payload.member.add_roles(role_eh)
+            elif str(payload.emoji) == "🟡":
+                await payload.member.add_roles(role_pc)
+
+
+# Remove role if reaction removed
+
+
+@bot.event
+async def on_raw_reaction_remove(payload=None):
+    msgid = 839908556978389022
+    guild = discord.utils.get(bot.guilds, name="Byob Bot")
+    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+    role_pc = discord.utils.get(guild.roles, name="Python Coder")
+    if payload is not None:
+        if payload.message_id == msgid:
+            if str(payload.emoji) == "🤖":
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_ce)
+            elif str(payload.emoji) == "💻":
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_eh)
+            elif str(payload.emoji) == "🟡":
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_pc)
 
 
 # Gives the Member role after membership screening
@@ -274,7 +318,7 @@ async def support(ctx):
 @bot.command(aliases=['portforward', 'pfw', ''])
 async def portforwarding(ctx):
     embed = discord.Embed(title="Port forwarding",
-                          description="Port forwarding is done on your router, and may be called port mapping, or virtual servers too. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to your machine that you're hosing byob on.",
+                          description="Port forwarding is done on your router, and may be called port mapping, or virtual servers too. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to your machine that you're hosting byob on.",
                           color=0x5cffb0)
     await ctx.message.delete()
     await ctx.send(embed=embed)
@@ -473,6 +517,25 @@ async def userinfo(ctx, member: discord.Member):
     await ctx.send(embed=embed)
 
 
+# reactionrole command
+
+
+@bot.command(pass_context=True)
+@commands.has_role('Support Team')
+async def reactionrole(ctx):
+    await ctx.message.delete()
+    embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!", color=0x5cffb0)
+    embed.add_field(name="Cybersecurity Expert", value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
+    embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.", inline=False)
+    embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.", inline=False)
+    message_ = await ctx.send(embed=embed)
+    await message_.add_reaction("🤖")
+    time.sleep(1)
+    await message_.add_reaction("💻")
+    time.sleep(1)
+    await message_.add_reaction("🟡")
+
+
 # DEVELOPER COMMANDS
 
 # shutdown command, only useable by the owner.
@@ -487,6 +550,27 @@ async def shutdown(ctx):
     await ctx.send(embed=embed)
     await bot.close()
     print(f'{bot.user.name} has been shut down.')
+
+
+# dev-status command, only usable by the owner.
+
+
+@bot.command()
+@commands.is_owner()
+async def dev_status(ctx):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+    currentprefix = prefixes[f"{ctx.guild.id}"]
+    with open('autorole.json', 'r') as f:
+        autoroles = json.load(f)
+    autorolestatus = autoroles[f"{ctx.guild.id}"]
+    embed = discord.Embed(title="Dev Status",
+                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}")
+    embed.add_field(name="**Server stats**",
+                    value=f"**Name**: {ctx.guild.name}\n**Members**: {ctx.guild.member_count}\n**Description**: {ctx.guild.description}",
+                    inline=False)
+    await ctx.message.delete()
+    await ctx.send(embed=embed)
 
 
 bot.run(TOKEN)
