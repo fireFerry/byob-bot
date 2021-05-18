@@ -98,12 +98,20 @@ async def on_ready():
 @bot.event
 async def on_raw_reaction_add(payload=None):
     msgid = 839908556978389022
+    msgid2 = 844330583034691594
     guild = discord.utils.get(bot.guilds, name="Byob Bot")
     role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
     role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
     role_pc = discord.utils.get(guild.roles, name="Python Coder")
     if payload is not None:
         if payload.message_id == msgid:
+            if str(payload.emoji) == "🤖":
+                await payload.member.add_roles(role_ce)
+            elif str(payload.emoji) == "💻":
+                await payload.member.add_roles(role_eh)
+            elif str(payload.emoji) == "🟡":
+                await payload.member.add_roles(role_pc)
+        elif payload.message_id == msgid2:
             if str(payload.emoji) == "🤖":
                 await payload.member.add_roles(role_ce)
             elif str(payload.emoji) == "💻":
@@ -118,12 +126,23 @@ async def on_raw_reaction_add(payload=None):
 @bot.event
 async def on_raw_reaction_remove(payload=None):
     msgid = 839908556978389022
+    msgid2 = 844330583034691594
     guild = discord.utils.get(bot.guilds, name="Byob Bot")
     role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
     role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
     role_pc = discord.utils.get(guild.roles, name="Python Coder")
     if payload is not None:
         if payload.message_id == msgid:
+            if str(payload.emoji) == "🤖":
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_ce)
+            elif str(payload.emoji) == "💻":
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_eh)
+            elif str(payload.emoji) == "🟡":
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_pc)
+        elif payload.message_id == msgid2:
             if str(payload.emoji) == "🤖":
                 member = guild.get_member(int(payload.user_id))
                 await member.remove_roles(role_ce)
