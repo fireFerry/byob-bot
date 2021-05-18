@@ -125,11 +125,14 @@ async def on_raw_reaction_remove(payload=None):
     if payload is not None:
         if payload.message_id == msgid:
             if str(payload.emoji) == "🤖":
-                await payload.member.remove_roles(role_ce)
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_ce)
             elif str(payload.emoji) == "💻":
-                await payload.member.remove_roles(role_eh)
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_eh)
             elif str(payload.emoji) == "🟡":
-                await payload.member.remove_roles(role_pc)
+                member = guild.get_member(int(payload.user_id))
+                await member.remove_roles(role_pc)
 
 
 # Gives the Member role after membership screening
