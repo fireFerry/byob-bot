@@ -112,6 +112,26 @@ async def on_raw_reaction_add(payload=None):
                 await payload.member.add_roles(role_pc)
 
 
+# Remove role if reaction removed
+
+
+@bot.event
+async def on_raw_reaction_remove(payload=None):
+    msgid = 839908556978389022
+    guild = discord.utils.get(bot.guilds, name="Byob Bot")
+    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+    role_pc = discord.utils.get(guild.roles, name="Python Coder")
+    if payload is not None:
+        if payload.message_id == msgid:
+            if str(payload.emoji) == "🤖":
+                await payload.member.remove_roles(role_ce)
+            elif str(payload.emoji) == "💻":
+                await payload.member.remove_roles(role_eh)
+            elif str(payload.emoji) == "🟡":
+                await payload.member.remove_roles(role_pc)
+
+
 # Gives the Member role after membership screening
 
 
