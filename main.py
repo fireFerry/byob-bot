@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.6.2'
+byob_bot_version = '1.2.6.3'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -569,6 +569,7 @@ async def dev_status(ctx):
     embed.add_field(name="**Server stats**",
                     value=f"**Name**: {ctx.guild.name}\n**Members**: {ctx.guild.member_count}\n**Description**: {ctx.guild.description}",
                     inline=False)
+    await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
