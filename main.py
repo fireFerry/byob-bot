@@ -80,6 +80,14 @@ async def on_guild_remove(guild):
     with open('autorole.json', 'w') as f:
         json.dump(autoroles, f, indent=4)
 
+    with open('reactionroles.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes.pop(str(guild.id))
+
+    with open('reactionroles.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
 
 # Changes the bot status to online and prints the bot name & id on start
 
@@ -547,20 +555,38 @@ async def userinfo(ctx, member: discord.Member):
 # reactionrole command
 
 
-@bot.command(pass_context=True)
-@commands.has_role('Support Team')
-async def reactionrole(ctx):
-    await ctx.message.delete()
-    embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!", color=0x5cffb0)
-    embed.add_field(name="Cybersecurity Expert", value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
-    embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.", inline=False)
-    embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.", inline=False)
-    message_ = await ctx.send(embed=embed)
-    await message_.add_reaction("🤖")
-    time.sleep(1)
-    await message_.add_reaction("💻")
-    time.sleep(1)
-    await message_.add_reaction("🟡")
+# @bot.command(pass_context=True)
+# @commands.has_role('Support Team')
+# async def reactionrole(ctx):
+#     await ctx.message.delete()
+#     embed = discord.Embed(title="Reaction Role Setup",
+#                           description="Firstly, type the channel # you want to get the message to be sent in.",
+#                           color=0x60ffb0)
+#     await ctx.send(embed=embed)
+#
+#     def check(m):
+#         return m.author.id == str(ctx.message.author.id)
+#
+#     time3 = await bot.wait_for('message', check=check)
+#     if time3.content is not None:
+#         chosen_channel = time3.content
+#         embed = discord.Embed(title="Reaction Role Setup",
+#                               description=f"Alright, the message has been sent in {chosen_channel}. Please copy the message id and send it here., color=0x60ffb0)
+#         await ctx.send(embed=embed)
+
+
+
+
+    # embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!", color=0x5cffb0)
+    # embed.add_field(name="Cybersecurity Expert", value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
+    # embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.", inline=False)
+    # embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.", inline=False)
+    # message_ = await ctx.send(embed=embed)
+    # await message_.add_reaction("🤖")
+    # time.sleep(1)
+    # await message_.add_reaction("💻")
+    # time.sleep(1)
+    # await message_.add_reaction("🟡")
 
 
 # DEVELOPER COMMANDS
@@ -592,12 +618,24 @@ async def dev_status(ctx):
         autoroles = json.load(f)
     autorolestatus = autoroles[f"{ctx.guild.id}"]
     embed = discord.Embed(title="Dev Status",
-                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}")
+                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}", color=0x5cffb0)
     embed.add_field(name="**Server stats**",
                     value=f"**Name**: {ctx.guild.name}\n**Members**: {ctx.guild.member_count}\n**Description**: {ctx.guild.description}",
                     inline=False)
     await ctx.message.delete()
     await ctx.send(embed=embed)
+
+
+@bot.command()
+async def test(ctx):
+    await ctx.send('Type channel')
+
+    def check(m):
+        return m.author.id == str(ctx.message.author.id)
+    time3 = await bot.wait_for('message', check=check)
+    if time3.content is not None:
+        chosen_channel = time3.content
+        ctx.send(f'{chosen_channel}')
 
 
 bot.run(TOKEN)
