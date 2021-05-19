@@ -212,7 +212,7 @@ async def help(ctx):
                      "Support commands:",
                      "Staff commands:",
                      "Developer commands:"]
-    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole RoleName:** Command to join one of the joinable roles by command, role names are case sensitive.\n**$leaverole RoleName:** Command to leave one of the joinable roles by command, role names are case sensitive.",
+    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.",
                       "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
                       "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:**Command to setup the reaction role system.",
                       "**$shutdown:** Shutdown the bot completely.\n**$dev_status:**Information for the developer."]
@@ -309,30 +309,6 @@ async def bugs(ctx):
                           color=0x5cffb0)
     await ctx.message.delete()
     await ctx.send(embed=embed)
-
-
-# joinrole command
-
-
-@bot.command()
-async def joinrole(ctx, role: discord.Role):
-    if role.name == str("Ethical Hacker") or str("Python Coder") or str("Cybersecurity Expert"):
-        await ctx.author.add_roles(role=role)
-        embed = discord.Embed(title="Role added", description=f"Added the {role.name} role",
-                              color=0x5cffb0)
-        await ctx.send(embed=embed)
-
-
-# leaverole command
-
-
-@bot.command()
-async def leaverole(ctx, role: discord.Role):
-    if role.name == str("Ethical Hacker") or str("Python Coder") or str("Cybersecurity Expert"):
-        await ctx.author.remove_roles(role=role)
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role",
-                              color=0x5cffb0)
-        await ctx.send(embed=embed)
 
 
 # SUPPORT COMMANDS
@@ -447,22 +423,25 @@ async def addrole(ctx, member: discord.Member, role: discord.Role):
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Ethical Hacker':
-        await member.add_roles(role)
+    elif role.name == 'EH':
+        role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
+        await member.add_roles(role_eh)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
+        embed = discord.Embed(title="Role added", description=f"Added the {role_eh.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Python Coder':
-        await member.add_roles(role)
+    elif role.name == 'PC':
+        role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
+        await member.add_roles(role_pc)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
+        embed = discord.Embed(title="Role added", description=f"Added the {role_pc.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Cybersecurity Expert':
-        await member.add_roles(role)
+    elif role.name == 'CE':
+        role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
+        await member.add_roles(role_ce)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
+        embed = discord.Embed(title="Role added", description=f"Added the {role_ce.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     else:
@@ -491,22 +470,25 @@ async def delrole(ctx, member: discord.Member, role: discord.Role):
         embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Ethical Hacker':
-        await member.remove_roles(role)
+    elif role.name == 'EH':
+        role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
+        await member.remove_roles(role_eh)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_eh.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Python Coder':
-        await member.remove_roles(role)
+    elif role.name == 'PC':
+        role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
+        await member.remove_roles(role_pc)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_pc.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Cybersecurity Expert':
-        await member.remove_roles(role)
+    elif role.name == 'CE':
+        role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
+        await member.remove_roles(role_ce)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_ce.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     else:
