@@ -105,23 +105,24 @@ async def on_ready():
 
 @bot.event
 async def on_raw_reaction_add(payload=None):
-    with open('reactionroles.json', 'r') as f:
-        reactionroles = json.load(f)
-    msgid = reactionroles[str(f"{payload.guild_id}")]
-    # msgid = 839908556978389022
-    # msgid2 = 844330583034691594
-    guild = bot.get_guild(int(payload.guild_id))
-    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
-    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
-    role_pc = discord.utils.get(guild.roles, name="Python Coder")
-    if payload is not None:
-        if payload.message_id == msgid:
-            if str(payload.emoji) == "🤖":
-                await payload.member.add_roles(role_ce)
-            elif str(payload.emoji) == "💻":
-                await payload.member.add_roles(role_eh)
-            elif str(payload.emoji) == "🟡":
-                await payload.member.add_roles(role_pc)
+    if payload.user_id != bot.user.id:
+        with open('reactionroles.json', 'r') as f:
+            reactionroles = json.load(f)
+        msgid = reactionroles[int(payload.guild_id)]
+        # msgid = 839908556978389022
+        # msgid2 = 844330583034691594
+        guild = bot.get_guild(int(payload.guild_id))
+        role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+        role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+        role_pc = discord.utils.get(guild.roles, name="Python Coder")
+        if payload is not None:
+            if payload.message_id == msgid:
+                if str(payload.emoji) == "🤖":
+                    await payload.member.add_roles(role_ce)
+                elif str(payload.emoji) == "💻":
+                    await payload.member.add_roles(role_eh)
+                elif str(payload.emoji) == "🟡":
+                    await payload.member.add_roles(role_pc)
 
 
 # Remove role if reaction removed
