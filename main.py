@@ -554,7 +554,6 @@ async def reactionrole(ctx):
         embed = discord.Embed(title="Reaction Role Setup", description=f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.", color=0x60ffb0)
         await ctx.send(embed=embed)
         channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
-        channel = bot.get_channel(channel_chosen_parsed)
         embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!",
                               color=0x5cffb0)
         embed.add_field(name="Cybersecurity Expert",
@@ -563,13 +562,12 @@ async def reactionrole(ctx):
                         inline=False)
         embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.",
                         inline=False)
-        message_ = await ctx.send(embed=embed)
+        message_ = await channel_chosen_parsed.send(embed=embed)
         await message_.add_reaction("🤖")
         time.sleep(1)
         await message_.add_reaction("💻")
         time.sleep(1)
         await message_.add_reaction("🟡")
-        await channel.send(embed=embed)
 
         def check(m):
             return m.author.id == ctx.author.id
@@ -630,13 +628,6 @@ async def dev_status(ctx):
                     inline=False)
     await ctx.message.delete()
     await ctx.send(embed=embed)
-
-    def check(m):
-        return m.author.id == ctx.author.id
-    chosen_channel = await bot.wait_for('message', check=check)
-    channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
-    channel = bot.get_channel(channel_chosen_parsed)
-    await channel.send("test")
 
 
 bot.run(TOKEN)
