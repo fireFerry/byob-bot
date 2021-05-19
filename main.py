@@ -555,24 +555,25 @@ async def userinfo(ctx, member: discord.Member):
 # reactionrole command
 
 
-# @bot.command(pass_context=True)
-# @commands.has_role('Support Team')
-# async def reactionrole(ctx):
-#     await ctx.message.delete()
-#     embed = discord.Embed(title="Reaction Role Setup",
-#                           description="Firstly, type the channel # you want to get the message to be sent in.",
-#                           color=0x60ffb0)
-#     await ctx.send(embed=embed)
-#
-#     def check(m):
-#         return m.author.id == str(ctx.message.author.id)
-#
-#     time3 = await bot.wait_for('message', check=check)
-#     if time3.content is not None:
-#         chosen_channel = time3.content
-#         embed = discord.Embed(title="Reaction Role Setup",
-#                               description=f"Alright, the message has been sent in {chosen_channel}. Please copy the message id and send it here., color=0x60ffb0)
-#         await ctx.send(embed=embed)
+@bot.command(pass_context=True)
+@commands.has_role('Support Team')
+async def reactionrole(ctx):
+    await ctx.message.delete()
+    embed = discord.Embed(title="Reaction Role Setup",
+                          description="Firstly, type the channel # you want to get the message to be sent in.",
+                          color=0x60ffb0)
+    await ctx.send(embed=embed)
+
+    def check(m):
+        return m.author.id == ctx.author.id
+
+    chosen_channel = await bot.wait_for('message', check=check)
+    if chosen_channel.content is not None:
+
+        embed = discord.Embed(title="Reaction Role Setup", description=f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.", color=0x60ffb0)
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send("An error has occured.")
 
 
 
@@ -624,16 +625,6 @@ async def dev_status(ctx):
                     inline=False)
     await ctx.message.delete()
     await ctx.send(embed=embed)
-
-
-@bot.command()
-async def test(ctx):
-    await ctx.send('Type channel')
-
-    def check(m):
-        return m.author.id == ctx.author.id
-    msg = await bot.wait_for('message', check=check)
-    await ctx.send(f'{msg.content}')
 
 
 bot.run(TOKEN)
