@@ -627,14 +627,14 @@ async def dev_status(ctx):
 
 
 @bot.command()
-async def test(ctx):
-    await ctx.send('Type channel')
+async def greet(ctx):
+    await ctx.send("Say hello!")
 
     def check(m):
-        return m.author.id == str(ctx.message.author.id)
-    time3 = await bot.wait_for('message', check=check)
-    chosen_channel = time3.content
-    ctx.send(f'{chosen_channel}')
+        return m.content == "hello"
+
+    msg = await bot.wait_for("message", check=check)
+    await ctx.send(f"Hello {msg.author}!")
 
 
 bot.run(TOKEN)
