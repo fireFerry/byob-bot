@@ -118,6 +118,7 @@ async def on_raw_reaction_add(payload=None):
         role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
         role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
         role_pc = discord.utils.get(guild.roles, name="Python Coder")
+        print(role_pc.name)
         if payload is not None:
             if payload.message_id == msgid:
                 if str(payload.emoji) == "🤖":
