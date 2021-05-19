@@ -572,6 +572,8 @@ async def reactionrole(ctx):
 
         embed = discord.Embed(title="Reaction Role Setup", description=f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.", color=0x60ffb0)
         await ctx.send(embed=embed)
+        channel = bot.get_channel(int(chosen_channel.content))
+        await ctx.send(channel)
     else:
         await ctx.send("An error has occured.")
 
