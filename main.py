@@ -404,7 +404,7 @@ async def wiki(ctx):
 
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
-async def addrole(ctx, member: discord.Member, role: discord.Role):
+async def addrole(ctx, member: discord.Member, role):
     roletxt = str(role)
     role = discord.Role
     if role.name == 'Contributor':
