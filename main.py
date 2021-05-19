@@ -105,16 +105,15 @@ async def on_ready():
 
 @bot.event
 async def on_raw_reaction_add(payload=None):
-    msgid = 839908556978389022
-    msgid2 = 844330583034691594
-    guild = discord.utils.get(bot.guilds, name="Byob Bot")
-    guild2 = discord.utils.get(bot.guilds, name="BYOB Community")
+    with open('reactionroles.json', 'r') as f:
+        reactionroles = json.load(f)
+    msgid = reactionroles[f"{payload.guild_id}"]
+    # msgid = 839908556978389022
+    # msgid2 = 844330583034691594
+    guild = bot.get_guild(int(payload.guild_id))
     role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
     role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
     role_pc = discord.utils.get(guild.roles, name="Python Coder")
-    role_ce2 = discord.utils.get(guild2.roles, name="Cybersecurity Expert")
-    role_eh2 = discord.utils.get(guild2.roles, name="Ethical Hacker")
-    role_pc2 = discord.utils.get(guild2.roles, name="Python Coder")
     if payload is not None:
         if payload.message_id == msgid:
             if str(payload.emoji) == "🤖":
@@ -123,13 +122,6 @@ async def on_raw_reaction_add(payload=None):
                 await payload.member.add_roles(role_eh)
             elif str(payload.emoji) == "🟡":
                 await payload.member.add_roles(role_pc)
-        elif payload.message_id == msgid2:
-            if str(payload.emoji) == "🤖":
-                await payload.member.add_roles(role_ce2)
-            elif str(payload.emoji) == "💻":
-                await payload.member.add_roles(role_eh2)
-            elif str(payload.emoji) == "🟡":
-                await payload.member.add_roles(role_pc2)
 
 
 # Remove role if reaction removed
@@ -137,16 +129,15 @@ async def on_raw_reaction_add(payload=None):
 
 @bot.event
 async def on_raw_reaction_remove(payload=None):
-    msgid = 839908556978389022
-    msgid2 = 844330583034691594
-    guild = discord.utils.get(bot.guilds, name="Byob Bot")
-    guild2 = discord.utils.get(bot.guilds, name="BYOB Community")
+    with open('reactionroles.json', 'r') as f:
+        reactionroles = json.load(f)
+    msgid = reactionroles[f"{payload.guild_id}"]
+    # msgid = 839908556978389022
+    # msgid2 = 844330583034691594
+    guild = bot.get_guild(int(payload.guild_id))
     role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
     role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
     role_pc = discord.utils.get(guild.roles, name="Python Coder")
-    role_ce2 = discord.utils.get(guild2.roles, name="Cybersecurity Expert")
-    role_eh2 = discord.utils.get(guild2.roles, name="Ethical Hacker")
-    role_pc2 = discord.utils.get(guild2.roles, name="Python Coder")
     if payload is not None:
         if payload.message_id == msgid:
             if str(payload.emoji) == "🤖":
@@ -158,16 +149,6 @@ async def on_raw_reaction_remove(payload=None):
             elif str(payload.emoji) == "🟡":
                 member = guild.get_member(int(payload.user_id))
                 await member.remove_roles(role_pc)
-        elif payload.message_id == msgid2:
-            if str(payload.emoji) == "🤖":
-                member = guild2.get_member(int(payload.user_id))
-                await member.remove_roles(role_ce2)
-            elif str(payload.emoji) == "💻":
-                member = guild2.get_member(int(payload.user_id))
-                await member.remove_roles(role_eh2)
-            elif str(payload.emoji) == "🟡":
-                member = guild2.get_member(int(payload.user_id))
-                await member.remove_roles(role_pc2)
 
 
 # Gives the Member role after membership screening
@@ -572,24 +553,46 @@ async def reactionrole(ctx):
 
         embed = discord.Embed(title="Reaction Role Setup", description=f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.", color=0x60ffb0)
         await ctx.send(embed=embed)
-        channel = bot.get_channel(int(chosen_channel.content))
-        await ctx.send(channel)
+        channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
+        channel = bot.get_channel(channel_chosen_parsed)
+        embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!",
+                              color=0x5cffb0)
+        embed.add_field(name="Cybersecurity Expert",
+                        value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
+        embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.",
+                        inline=False)
+        embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.",
+                        inline=False)
+        message_ = await ctx.send(embed=embed)
+        await message_.add_reaction("🤖")
+        time.sleep(1)
+        await message_.add_reaction("💻")
+        time.sleep(1)
+        await message_.add_reaction("🟡")
+        await channel.send(embed=embed)
+
+        def check(m):
+            return m.author.id == ctx.author.id
+
+        chosen_messageid = await bot.wait_for('message', check=check)
+        if chosen_messageid.content is not None:
+            with open('reactionroles.json', 'r') as f:
+                prefixes = json.load(f)
+
+            prefixes[str(ctx.guild.id)] = f'{chosen_messageid.content}'
+
+            with open('reactionroles.json', 'w') as f:
+                json.dump(prefixes, f, indent=4)
+            embed = discord.Embed(title="Reaction Role Setup",
+                                  description=f"The message id: {chosen_messageid.content} has been added to the list. Reacting should now add/remove roles.",
+                                  color=0x60ffb0)
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(title="Error", description="An error ocurred. Please try again.", color=0x60ffb0)
+            await ctx.send(embed=embed)
     else:
-        await ctx.send("An error has occured.")
-
-
-
-
-    # embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!", color=0x5cffb0)
-    # embed.add_field(name="Cybersecurity Expert", value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
-    # embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.", inline=False)
-    # embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.", inline=False)
-    # message_ = await ctx.send(embed=embed)
-    # await message_.add_reaction("🤖")
-    # time.sleep(1)
-    # await message_.add_reaction("💻")
-    # time.sleep(1)
-    # await message_.add_reaction("🟡")
+        embed = discord.Embed(title="Error", description="An error ocurred. Please try again.", color=0x60ffb0)
+        await ctx.send(embed=embed)
 
 
 # DEVELOPER COMMANDS
