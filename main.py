@@ -316,7 +316,7 @@ async def bugs(ctx):
 
 @bot.command()
 async def joinrole(ctx, role: discord.Role):
-    if role.name == "Ethical Hacker" or "Python Coder" or "Cybersecurity Expert":
+    if role.name == str("Ethical Hacker") or str("Python Coder") or str("Cybersecurity Expert"):
         await ctx.author.add_roles(role=role)
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role",
                               color=0x5cffb0)
@@ -328,7 +328,7 @@ async def joinrole(ctx, role: discord.Role):
 
 @bot.command()
 async def leaverole(ctx, role: discord.Role):
-    if role.name == "Ethical Hacker" or "Python Coder" or "Cybersecurity Expert":
+    if role.name == str("Ethical Hacker") or str("Python Coder") or str("Cybersecurity Expert"):
         await ctx.author.remove_roles(role=role)
         embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role",
                               color=0x5cffb0)
