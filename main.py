@@ -633,7 +633,7 @@ async def test(ctx):
     def check(m):
         return m.author.id == ctx.author.id
     msg = await bot.wait_for('message', check=check)
-    ctx.send(f'{msg}')
+    await ctx.send(f'{msg}')
 
 
 bot.run(TOKEN)
