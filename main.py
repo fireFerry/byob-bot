@@ -633,9 +633,8 @@ async def test(ctx):
     def check(m):
         return m.author.id == str(ctx.message.author.id)
     time3 = await bot.wait_for('message', check=check)
-    if time3.content is not None:
-        chosen_channel = time3.content
-        ctx.send(f'{chosen_channel}')
+    chosen_channel = time3.content
+    ctx.send(f'{chosen_channel}')
 
 
 bot.run(TOKEN)
