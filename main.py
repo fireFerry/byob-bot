@@ -108,8 +108,10 @@ async def on_raw_reaction_add(payload=None):
     if payload.user_id != bot.user.id:
         with open('reactionroles.json', 'r') as f:
             reactionroles = json.load(f)
-        guildid_string = str(payload.guild_id)
+        guildid_string = str(f"{payload.guild_id}")
+        print(guildid_string)
         msgid = reactionroles[f"{guildid_string}"]
+        print(msgid)
         # msgid = 839908556978389022
         # msgid2 = 844330583034691594
         guild = bot.get_guild(int(payload.guild_id))
