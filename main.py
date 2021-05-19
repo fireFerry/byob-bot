@@ -122,6 +122,7 @@ async def on_raw_reaction_add(payload=None):
         if payload is not None:
             print(role_pc.name)
             if payload.message_id == msgid:
+                print("Pythonlol")
                 if str(payload.emoji) == "🤖":
                     print(payload.message_id)
                     await payload.member.add_roles(role_ce)
