@@ -405,6 +405,8 @@ async def wiki(ctx):
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
 async def addrole(ctx, member: discord.Member, role: discord.Role):
+    roletxt = role
+    role = discord.Role
     if role.name == 'Contributor':
         await member.add_roles(role)
         await ctx.message.delete()
@@ -423,21 +425,21 @@ async def addrole(ctx, member: discord.Member, role: discord.Role):
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'EH':
+    elif roletxt == 'EH':
         role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
         await member.add_roles(role_eh)
         await ctx.message.delete()
         embed = discord.Embed(title="Role added", description=f"Added the {role_eh.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'PC':
+    elif roletxt == 'PC':
         role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
         await member.add_roles(role_pc)
         await ctx.message.delete()
         embed = discord.Embed(title="Role added", description=f"Added the {role_pc.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'CE':
+    elif roletxt == 'CE':
         role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
         await member.add_roles(role_ce)
         await ctx.message.delete()
@@ -457,7 +459,9 @@ async def addrole(ctx, member: discord.Member, role: discord.Role):
 
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
-async def delrole(ctx, member: discord.Member, role: discord.Role):
+async def delrole(ctx, member: discord.Member, role):
+    roletxt = role
+    role = discord.Role
     if role.name == 'Contributor':
         await member.remove_roles(role)
         await ctx.message.delete()
@@ -470,21 +474,21 @@ async def delrole(ctx, member: discord.Member, role: discord.Role):
         embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'EH':
+    elif roletxt == 'EH':
         role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
         await member.remove_roles(role_eh)
         await ctx.message.delete()
         embed = discord.Embed(title="Role removed", description=f"Removed the {role_eh.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'PC':
+    elif roletxt == 'PC':
         role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
         await member.remove_roles(role_pc)
         await ctx.message.delete()
         embed = discord.Embed(title="Role removed", description=f"Removed the {role_pc.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'CE':
+    elif roletxt == 'CE':
         role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
         await member.remove_roles(role_ce)
         await ctx.message.delete()
