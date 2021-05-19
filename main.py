@@ -577,12 +577,12 @@ async def reactionrole(ctx):
         chosen_messageid = await bot.wait_for('message', check=check)
         if chosen_messageid.content is not None:
             with open('reactionroles.json', 'r') as f:
-                prefixes = json.load(f)
+                reactionroles = json.load(f)
 
-            prefixes[str(ctx.guild.id)] = f'{chosen_messageid.content}'
+            reactionroles[str(ctx.guild.id)] = f'{chosen_messageid.content}'
 
             with open('reactionroles.json', 'w') as f:
-                json.dump(prefixes, f, indent=4)
+                json.dump(reactionroles, f, indent=4)
             embed = discord.Embed(title="Reaction Role Setup",
                                   description=f"The message id: {chosen_messageid.content} has been added to the list. Reacting should now add/remove roles.",
                                   color=0x60ffb0)
@@ -630,6 +630,13 @@ async def dev_status(ctx):
                     inline=False)
     await ctx.message.delete()
     await ctx.send(embed=embed)
+
+    def check(m):
+        return m.author.id == ctx.author.id
+    chosen_channel = await bot.wait_for('message', check=check)
+    channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
+    channel = bot.get_channel(channel_chosen_parsed)
+    await channel.send("test")
 
 
 bot.run(TOKEN)
