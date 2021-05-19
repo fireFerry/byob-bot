@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.7.2'
+byob_bot_version = '1.2.8'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -80,6 +80,14 @@ async def on_guild_remove(guild):
     with open('autorole.json', 'w') as f:
         json.dump(autoroles, f, indent=4)
 
+    with open('reactionroles.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes.pop(str(guild.id))
+
+    with open('reactionroles.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
+
 
 # Changes the bot status to online and prints the bot name & id on start
 
@@ -97,31 +105,22 @@ async def on_ready():
 
 @bot.event
 async def on_raw_reaction_add(payload=None):
-    msgid = 839908556978389022
-    msgid2 = 844330583034691594
-    guild = discord.utils.get(bot.guilds, name="Byob Bot")
-    guild2 = discord.utils.get(bot.guilds, name="BYOB Community")
-    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
-    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
-    role_pc = discord.utils.get(guild.roles, name="Python Coder")
-    role_ce2 = discord.utils.get(guild2.roles, name="Cybersecurity Expert")
-    role_eh2 = discord.utils.get(guild2.roles, name="Ethical Hacker")
-    role_pc2 = discord.utils.get(guild2.roles, name="Python Coder")
-    if payload is not None:
-        if payload.message_id == msgid:
-            if str(payload.emoji) == "🤖":
-                await payload.member.add_roles(role_ce)
-            elif str(payload.emoji) == "💻":
-                await payload.member.add_roles(role_eh)
-            elif str(payload.emoji) == "🟡":
-                await payload.member.add_roles(role_pc)
-        elif payload.message_id == msgid2:
-            if str(payload.emoji) == "🤖":
-                await payload.member.add_roles(role_ce2)
-            elif str(payload.emoji) == "💻":
-                await payload.member.add_roles(role_eh2)
-            elif str(payload.emoji) == "🟡":
-                await payload.member.add_roles(role_pc2)
+    if payload.user_id != bot.user.id:
+        with open('reactionroles.json', 'r') as f:
+            reactionroles = json.load(f)
+        msgid = reactionroles[f"{payload.guild_id}"]
+        guild = bot.get_guild(int(payload.guild_id))
+        role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+        role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+        role_pc = discord.utils.get(guild.roles, name="Python Coder")
+        if payload is not None:
+            if payload.message_id == int(msgid):
+                if str(payload.emoji) == "🤖":
+                    await payload.member.add_roles(role_ce)
+                elif str(payload.emoji) == "💻":
+                    await payload.member.add_roles(role_eh)
+                elif str(payload.emoji) == "🟡":
+                    await payload.member.add_roles(role_pc)
 
 
 # Remove role if reaction removed
@@ -129,18 +128,15 @@ async def on_raw_reaction_add(payload=None):
 
 @bot.event
 async def on_raw_reaction_remove(payload=None):
-    msgid = 839908556978389022
-    msgid2 = 844330583034691594
-    guild = discord.utils.get(bot.guilds, name="Byob Bot")
-    guild2 = discord.utils.get(bot.guilds, name="BYOB Community")
+    with open('reactionroles.json', 'r') as f:
+        reactionroles = json.load(f)
+    msgid = reactionroles[f"{payload.guild_id}"]
+    guild = bot.get_guild(int(payload.guild_id))
     role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
     role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
     role_pc = discord.utils.get(guild.roles, name="Python Coder")
-    role_ce2 = discord.utils.get(guild2.roles, name="Cybersecurity Expert")
-    role_eh2 = discord.utils.get(guild2.roles, name="Ethical Hacker")
-    role_pc2 = discord.utils.get(guild2.roles, name="Python Coder")
     if payload is not None:
-        if payload.message_id == msgid:
+        if payload.message_id == int(msgid):
             if str(payload.emoji) == "🤖":
                 member = guild.get_member(int(payload.user_id))
                 await member.remove_roles(role_ce)
@@ -150,16 +146,6 @@ async def on_raw_reaction_remove(payload=None):
             elif str(payload.emoji) == "🟡":
                 member = guild.get_member(int(payload.user_id))
                 await member.remove_roles(role_pc)
-        elif payload.message_id == msgid2:
-            if str(payload.emoji) == "🤖":
-                member = guild2.get_member(int(payload.user_id))
-                await member.remove_roles(role_ce2)
-            elif str(payload.emoji) == "💻":
-                member = guild2.get_member(int(payload.user_id))
-                await member.remove_roles(role_eh2)
-            elif str(payload.emoji) == "🟡":
-                member = guild2.get_member(int(payload.user_id))
-                await member.remove_roles(role_pc2)
 
 
 # Gives the Member role after membership screening
@@ -228,8 +214,8 @@ async def help(ctx):
                      "Developer commands:"]
     contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.",
                       "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
-                      "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.",
-                      "**$shutdown:** Shutdown the bot completely."]
+                      "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:**Command to setup the reaction role system.",
+                      "**$shutdown:** Shutdown the bot completely.\n**$dev_status:**Information for the developer."]
     helppages = 3
     cur_page = 0
     timecurrentlyutc = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S UTC")
@@ -418,7 +404,9 @@ async def wiki(ctx):
 
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
-async def addrole(ctx, member: discord.Member, role: discord.Role):
+async def addrole(ctx, member: discord.Member, role):
+    roletxt = str(role)
+    role = discord.Role
     if role.name == 'Contributor':
         await member.add_roles(role)
         await ctx.message.delete()
@@ -437,6 +425,27 @@ async def addrole(ctx, member: discord.Member, role: discord.Role):
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
+    elif roletxt == 'EH':
+        role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
+        await member.add_roles(role_eh)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role added", description=f"Added the {role_eh.name} role to {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == 'PC':
+        role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
+        await member.add_roles(role_pc)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role added", description=f"Added the {role_pc.name} role to {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == 'CE':
+        role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
+        await member.add_roles(role_ce)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role added", description=f"Added the {role_ce.name} role to {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
     else:
         await ctx.message.delete()
         embed = discord.Embed(title="Error",
@@ -450,7 +459,9 @@ async def addrole(ctx, member: discord.Member, role: discord.Role):
 
 @bot.command(pass_context=True)
 @commands.has_role('Support Team')
-async def delrole(ctx, member: discord.Member, role: discord.Role):
+async def delrole(ctx, member: discord.Member, role):
+    roletxt = str(role)
+    role = discord.Role
     if role.name == 'Contributor':
         await member.remove_roles(role)
         await ctx.message.delete()
@@ -461,6 +472,27 @@ async def delrole(ctx, member: discord.Member, role: discord.Role):
         await member.remove_roles(role)
         await ctx.message.delete()
         embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == 'EH':
+        role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
+        await member.remove_roles(role_eh)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_eh.name} role from {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == 'PC':
+        role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
+        await member.remove_roles(role_pc)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_pc.name} role from {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == 'CE':
+        role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
+        await member.remove_roles(role_ce)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_ce.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     else:
@@ -551,16 +583,57 @@ async def userinfo(ctx, member: discord.Member):
 @commands.has_role('Support Team')
 async def reactionrole(ctx):
     await ctx.message.delete()
-    embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!", color=0x5cffb0)
-    embed.add_field(name="Cybersecurity Expert", value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
-    embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.", inline=False)
-    embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.", inline=False)
-    message_ = await ctx.send(embed=embed)
-    await message_.add_reaction("🤖")
-    time.sleep(1)
-    await message_.add_reaction("💻")
-    time.sleep(1)
-    await message_.add_reaction("🟡")
+    embed = discord.Embed(title="Reaction Role Setup",
+                          description="Firstly, type the channel # you want to get the message to be sent in.",
+                          color=0x60ffb0)
+    await ctx.send(embed=embed)
+
+    def check(m):
+        return m.author.id == ctx.author.id
+
+    chosen_channel = await bot.wait_for('message', check=check)
+    if chosen_channel.content is not None:
+
+        embed = discord.Embed(title="Reaction Role Setup", description=f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.", color=0x60ffb0)
+        await ctx.send(embed=embed)
+        channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
+        embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!",
+                              color=0x5cffb0)
+        embed.add_field(name="Cybersecurity Expert",
+                        value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
+        embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.",
+                        inline=False)
+        embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.",
+                        inline=False)
+        message_ = await channel_chosen_parsed.send(embed=embed)
+        await message_.add_reaction("🤖")
+        time.sleep(1)
+        await message_.add_reaction("💻")
+        time.sleep(1)
+        await message_.add_reaction("🟡")
+
+        def check(m):
+            return m.author.id == ctx.author.id
+
+        chosen_messageid = await bot.wait_for('message', check=check)
+        if chosen_messageid.content is not None:
+            with open('reactionroles.json', 'r') as f:
+                reactionroles = json.load(f)
+
+            reactionroles[str(ctx.guild.id)] = f'{chosen_messageid.content}'
+
+            with open('reactionroles.json', 'w') as f:
+                json.dump(reactionroles, f, indent=4)
+            embed = discord.Embed(title="Reaction Role Setup",
+                                  description=f"The message id: {chosen_messageid.content} has been added to the list. Reacting should now add/remove roles.",
+                                  color=0x60ffb0)
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(title="Error", description="An error ocurred. Please try again.", color=0x60ffb0)
+            await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(title="Error", description="An error ocurred. Please try again.", color=0x60ffb0)
+        await ctx.send(embed=embed)
 
 
 # DEVELOPER COMMANDS
@@ -592,7 +665,7 @@ async def dev_status(ctx):
         autoroles = json.load(f)
     autorolestatus = autoroles[f"{ctx.guild.id}"]
     embed = discord.Embed(title="Dev Status",
-                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}")
+                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}", color=0x5cffb0)
     embed.add_field(name="**Server stats**",
                     value=f"**Name**: {ctx.guild.name}\n**Members**: {ctx.guild.member_count}\n**Description**: {ctx.guild.description}",
                     inline=False)
