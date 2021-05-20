@@ -146,6 +146,8 @@ async def on_raw_reaction_remove(payload=None):
             elif str(payload.emoji) == "🟡":
                 member = guild.get_member(int(payload.user_id))
                 await member.remove_roles(role_pc)
+        else:
+            return False
 
 
 # Gives the Member role after membership screening
