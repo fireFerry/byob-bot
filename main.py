@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.8.2'
+byob_bot_version = '1.2.8.3'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -106,9 +106,12 @@ async def on_ready():
 @bot.event
 async def on_raw_reaction_add(payload=None):
     if not payload.member.bot:
-        with open('reactionroles.json', 'r') as f:
-            reactionroles = json.load(f)
-        msgid = reactionroles[f"{payload.guild_id}"]
+        try:
+            with open('reactionroles.json', 'r') as f:
+                reactionroles = json.load(f)
+            msgid = reactionroles[f"{payload.guild_id}"]
+        except KeyError:
+            pass
         if int(msgid) is not None:
             guild = bot.get_guild(int(payload.guild_id))
             role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
@@ -129,9 +132,12 @@ async def on_raw_reaction_add(payload=None):
 
 @bot.event
 async def on_raw_reaction_remove(payload=None):
-    with open('reactionroles.json', 'r') as f:
-        reactionroles = json.load(f)
-    msgid = reactionroles[f"{payload.guild_id}"]
+    try:
+        with open('reactionroles.json', 'r') as f:
+            reactionroles = json.load(f)
+        msgid = reactionroles[f"{payload.guild_id}"]
+    except KeyError:
+        pass
     if int(msgid) is not None:
         guild = bot.get_guild(int(payload.guild_id))
         role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
