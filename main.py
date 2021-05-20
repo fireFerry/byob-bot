@@ -109,7 +109,7 @@ async def on_raw_reaction_add(payload=None):
         with open('reactionroles.json', 'r') as f:
             reactionroles = json.load(f)
         msgid = reactionroles[f"{payload.guild_id}"]
-        if msgid is str:
+        if int(msgid) is not None:
             guild = bot.get_guild(int(payload.guild_id))
             role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
             role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
@@ -132,7 +132,7 @@ async def on_raw_reaction_remove(payload=None):
     with open('reactionroles.json', 'r') as f:
         reactionroles = json.load(f)
     msgid = reactionroles[f"{payload.guild_id}"]
-    if msgid is str:
+    if int(msgid) is not None:
         guild = bot.get_guild(int(payload.guild_id))
         role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
         role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
