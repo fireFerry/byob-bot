@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.8.1'
+byob_bot_version = '1.2.8.2'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -105,22 +105,23 @@ async def on_ready():
 
 @bot.event
 async def on_raw_reaction_add(payload=None):
-    if payload.user_id != bot.user.id:
+    if not payload.member.bot:
         with open('reactionroles.json', 'r') as f:
             reactionroles = json.load(f)
         msgid = reactionroles[f"{payload.guild_id}"]
-        guild = bot.get_guild(int(payload.guild_id))
-        role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
-        role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
-        role_pc = discord.utils.get(guild.roles, name="Python Coder")
-        if payload is not None:
-            if payload.message_id == int(msgid):
-                if str(payload.emoji) == "🤖":
-                    await payload.member.add_roles(role_ce)
-                elif str(payload.emoji) == "💻":
-                    await payload.member.add_roles(role_eh)
-                elif str(payload.emoji) == "🟡":
-                    await payload.member.add_roles(role_pc)
+        if int(msgid) is not None:
+            guild = bot.get_guild(int(payload.guild_id))
+            role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+            role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+            role_pc = discord.utils.get(guild.roles, name="Python Coder")
+            if payload is not None:
+                if payload.message_id == int(msgid):
+                    if str(payload.emoji) == "🤖":
+                        await payload.member.add_roles(role_ce)
+                    elif str(payload.emoji) == "💻":
+                        await payload.member.add_roles(role_eh)
+                    elif str(payload.emoji) == "🟡":
+                        await payload.member.add_roles(role_pc)
 
 
 # Remove role if reaction removed
@@ -131,21 +132,22 @@ async def on_raw_reaction_remove(payload=None):
     with open('reactionroles.json', 'r') as f:
         reactionroles = json.load(f)
     msgid = reactionroles[f"{payload.guild_id}"]
-    guild = bot.get_guild(int(payload.guild_id))
-    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
-    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
-    role_pc = discord.utils.get(guild.roles, name="Python Coder")
-    if payload is not None:
-        if payload.message_id == int(msgid):
-            if str(payload.emoji) == "🤖":
-                member = guild.get_member(int(payload.user_id))
-                await member.remove_roles(role_ce)
-            elif str(payload.emoji) == "💻":
-                member = guild.get_member(int(payload.user_id))
-                await member.remove_roles(role_eh)
-            elif str(payload.emoji) == "🟡":
-                member = guild.get_member(int(payload.user_id))
-                await member.remove_roles(role_pc)
+    if int(msgid) is not None:
+        guild = bot.get_guild(int(payload.guild_id))
+        role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+        role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+        role_pc = discord.utils.get(guild.roles, name="Python Coder")
+        if payload is not None:
+            if payload.message_id == int(msgid):
+                if str(payload.emoji) == "🤖":
+                    member = guild.get_member(int(payload.user_id))
+                    await member.remove_roles(role_ce)
+                elif str(payload.emoji) == "💻":
+                    member = guild.get_member(int(payload.user_id))
+                    await member.remove_roles(role_eh)
+                elif str(payload.emoji) == "🟡":
+                    member = guild.get_member(int(payload.user_id))
+                    await member.remove_roles(role_pc)
 
 
 # Gives the Member role after membership screening
@@ -212,10 +214,10 @@ async def help(ctx):
                      "Support commands:",
                      "Staff commands:",
                      "Developer commands:"]
-    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.",
+    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole EH/CE/PC:** Command to join one of the joinable roles by command.\n**$leaverole EH/CE/PC:** Command to leave one of the joinable roles by command.",
                       "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
-                      "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:**Command to setup the reaction role system.",
-                      "**$shutdown:** Shutdown the bot completely.\n**$dev_status:**Information for the developer."]
+                      "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:** Command to setup the reaction role system.",
+                      "**$shutdown:** Shutdown the bot completely.\n**$dev_status:** Information for the developer."]
     helppages = 3
     cur_page = 0
     timecurrentlyutc = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S UTC")
