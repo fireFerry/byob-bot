@@ -112,23 +112,19 @@ async def on_raw_reaction_add(payload=None):
             msgid = reactionroles[f"{payload.guild_id}"]
         except KeyError:
             pass
-        try:
-            if int(msgid) is not None:
-                pass
-        except UnboundLocalError:
-            pass
-        guild = bot.get_guild(int(payload.guild_id))
-        role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
-        role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
-        role_pc = discord.utils.get(guild.roles, name="Python Coder")
-        if payload is not None:
-            if payload.message_id == int(msgid):
-                if str(payload.emoji) == "🤖":
-                    await payload.member.add_roles(role_ce)
-                elif str(payload.emoji) == "💻":
-                    await payload.member.add_roles(role_eh)
-                elif str(payload.emoji) == "🟡":
-                    await payload.member.add_roles(role_pc)
+        if int(msgid) is not None:
+            guild = bot.get_guild(int(payload.guild_id))
+            role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+            role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+            role_pc = discord.utils.get(guild.roles, name="Python Coder")
+            if payload is not None:
+                if payload.message_id == int(msgid):
+                    if str(payload.emoji) == "🤖":
+                        await payload.member.add_roles(role_ce)
+                    elif str(payload.emoji) == "💻":
+                        await payload.member.add_roles(role_eh)
+                    elif str(payload.emoji) == "🟡":
+                        await payload.member.add_roles(role_pc)
 
 
 # Remove role if reaction removed
@@ -142,26 +138,22 @@ async def on_raw_reaction_remove(payload=None):
         msgid = reactionroles[f"{payload.guild_id}"]
     except KeyError:
         pass
-    try:
-        if int(msgid) is not None:
-            pass
-    except UnboundLocalError:
-        pass
-    guild = bot.get_guild(int(payload.guild_id))
-    role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
-    role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
-    role_pc = discord.utils.get(guild.roles, name="Python Coder")
-    if payload is not None:
-        if payload.message_id == int(msgid):
-            if str(payload.emoji) == "🤖":
-                member = guild.get_member(int(payload.user_id))
-                await member.remove_roles(role_ce)
-            elif str(payload.emoji) == "💻":
-                member = guild.get_member(int(payload.user_id))
-                await member.remove_roles(role_eh)
-            elif str(payload.emoji) == "🟡":
-                member = guild.get_member(int(payload.user_id))
-                await member.remove_roles(role_pc)
+    if int(msgid) is not None:
+        guild = bot.get_guild(int(payload.guild_id))
+        role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
+        role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
+        role_pc = discord.utils.get(guild.roles, name="Python Coder")
+        if payload is not None:
+            if payload.message_id == int(msgid):
+                if str(payload.emoji) == "🤖":
+                    member = guild.get_member(int(payload.user_id))
+                    await member.remove_roles(role_ce)
+                elif str(payload.emoji) == "💻":
+                    member = guild.get_member(int(payload.user_id))
+                    await member.remove_roles(role_eh)
+                elif str(payload.emoji) == "🟡":
+                    member = guild.get_member(int(payload.user_id))
+                    await member.remove_roles(role_pc)
 
 
 # Gives the Member role after membership screening
