@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.8'
+byob_bot_version = '1.2.8.1'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -309,6 +309,68 @@ async def bugs(ctx):
                           color=0x5cffb0)
     await ctx.message.delete()
     await ctx.send(embed=embed)
+
+
+# joinrole command
+
+
+@bot.command()
+async def joinrole(ctx, role):
+    roletxt = str(role)
+    if roletxt == "EH":
+        role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
+        await ctx.author.add_roles(role_eh)
+        embed = discord.Embed(title="Role added", description=f"Added the {role_eh.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == "CE":
+        role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
+        await ctx.author.add_roles(role_ce)
+        embed = discord.Embed(title="Role added", description=f"Added the {role_ce.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == "PC":
+        role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
+        await ctx.author.add_roles(role_pc)
+        embed = discord.Embed(title="Role added", description=f"Added the {role_pc.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(title="Error",
+                              description=f"{ctx.author.mention}, You don't have permission to join that role or an error occurred",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+
+
+# leaverole command
+
+
+@bot.command()
+async def leaverole(ctx, role):
+    roletxt = str(role)
+    if roletxt == "EH":
+        role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
+        await ctx.author.remove_roles(role_eh)
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_eh.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == "CE":
+        role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
+        await ctx.author.remove_roles(role_ce)
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_ce.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == "PC":
+        role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
+        await ctx.author.remove_roles(role_pc)
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_pc.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(title="Error",
+                              description=f"{ctx.author.mention}, You don't have permission to leave that role or an error occurred",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
 
 
 # SUPPORT COMMANDS
@@ -629,10 +691,10 @@ async def reactionrole(ctx):
                                   color=0x60ffb0)
             await ctx.send(embed=embed)
         else:
-            embed = discord.Embed(title="Error", description="An error ocurred. Please try again.", color=0x60ffb0)
+            embed = discord.Embed(title="Error", description="An error occurred. Please try again.", color=0x60ffb0)
             await ctx.send(embed=embed)
     else:
-        embed = discord.Embed(title="Error", description="An error ocurred. Please try again.", color=0x60ffb0)
+        embed = discord.Embed(title="Error", description="An error occurred. Please try again.", color=0x60ffb0)
         await ctx.send(embed=embed)
 
 
@@ -646,7 +708,7 @@ async def reactionrole(ctx):
 async def shutdown(ctx):
     await bot.change_presence(status=discord.Status.invisible)
     await ctx.message.delete()
-    embed = discord.Embed(title="Shutdown", description="Byob Bot has been shut down.", color=0x5cffb0)
+    embed = discord.Embed(title="Shutdown", description=f"{bot.user.name} has been shut down.", color=0x5cffb0)
     await ctx.send(embed=embed)
     await bot.close()
     print(f'{bot.user.name} has been shut down.')
