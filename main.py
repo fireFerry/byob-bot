@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.8.1'
+byob_bot_version = '1.2.8.2'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -212,7 +212,7 @@ async def help(ctx):
                      "Support commands:",
                      "Staff commands:",
                      "Developer commands:"]
-    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.",
+    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole RoleName:** Command to join one of the joinable roles by command, role names are case sensitive.\n**$leaverole RoleName:** Command to leave one of the joinable roles by command, role names are case sensitive.",
                       "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
                       "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:**Command to setup the reaction role system.",
                       "**$shutdown:** Shutdown the bot completely.\n**$dev_status:**Information for the developer."]
