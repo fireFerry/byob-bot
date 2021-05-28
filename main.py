@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.8.5'
+byob_bot_version = '1.2.8.6'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -476,20 +476,22 @@ async def wiki(ctx):
 @commands.has_role('Support Team')
 async def addrole(ctx, member: discord.Member, role):
     roletxt = str(role)
-    role = discord.Role
-    if role.name == 'Contributor':
+    if roletxt == 'Contributor':
+        role = discord.utils.get(ctx.guild.roles, name="Contributor")
         await member.add_roles(role)
         await ctx.message.delete()
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Ticket Blacklist':
+    elif roletxt == 'Ticket Blacklist':
+        role = discord.utils.get(ctx.guild.roles, name="Ticket Blacklist")
         await member.add_roles(role)
         await ctx.message.delete()
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Members':
+    elif roletxt == 'Members':
+        role = discord.utils.get(ctx.guild.roles, name="Members")
         await member.add_roles(role)
         await ctx.message.delete()
         embed = discord.Embed(title="Role added", description=f"Added the {role.name} role to {member.mention}",
@@ -531,14 +533,15 @@ async def addrole(ctx, member: discord.Member, role):
 @commands.has_role('Support Team')
 async def delrole(ctx, member: discord.Member, role):
     roletxt = str(role)
-    role = discord.Role
-    if role.name == 'Contributor':
+    if roletxt == 'Contributor':
+        role = discord.utils.get(ctx.guild.roles, name="Contributor")
         await member.remove_roles(role)
         await ctx.message.delete()
         embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
-    elif role.name == 'Ticket Blacklist':
+    elif roletxt == 'Ticket Blacklist':
+        role = discord.utils.get(ctx.guild.roles, name="Ticket Blacklist")
         await member.remove_roles(role)
         await ctx.message.delete()
         embed = discord.Embed(title="Role removed", description=f"Removed the {role.name} role from {member.mention}",
