@@ -11,7 +11,7 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.8.6'
+byob_bot_version = '1.2.9'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -201,6 +201,32 @@ async def on_message(message):
                               color=0x5cffb0)
         await message.channel.send(embed=embed)
     await bot.process_commands(message)
+
+
+# Change member count on join
+
+
+async def on_member_join(member):
+    for channel in member.guild.text_channels:
+        if channel.name.startswith("Members:"):
+            await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
+        if channel.name.startswith("All Members:"):
+            await channel.edit(name=f"All Members: {member.guild.member_count}")
+        if channel.name.startswith("Bots:"):
+            await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
+
+
+# Change member count on leave
+
+
+async def on_member_remove(member):
+    for channel in member.guild.text_channels:
+        if channel.name.startswith("Members:"):
+            await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
+        if channel.name.startswith("All Members:"):
+            await channel.edit(name=f"All Members: {member.guild.member_count}")
+        if channel.name.startswith("Bots:"):
+            await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
 
 
 # GENERAL COMMANDS
