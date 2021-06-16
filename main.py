@@ -209,10 +209,13 @@ async def on_message(message):
 async def on_member_join(member):
     for channel in member.guild.text_channels:
         if channel.name.startswith("Members:"):
+            print("yes")
             await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
         if channel.name.startswith("All Members:"):
+            print("yes")
             await channel.edit(name=f"All Members: {member.guild.member_count}")
         if channel.name.startswith("Bots:"):
+            print("yes")
             await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
 
 
@@ -222,10 +225,13 @@ async def on_member_join(member):
 async def on_member_remove(member):
     for channel in member.guild.text_channels:
         if channel.name.startswith("Members:"):
+            print("yes")
             await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
         if channel.name.startswith("All Members:"):
+            print("yes")
             await channel.edit(name=f"All Members: {member.guild.member_count}")
         if channel.name.startswith("Bots:"):
+            print("yes")
             await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
 
 
