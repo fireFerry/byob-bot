@@ -117,6 +117,7 @@ async def on_raw_reaction_add(payload=None):
             role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
             role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
             role_pc = discord.utils.get(guild.roles, name="Python Coder")
+            role_no = discord.utils.get(guild.roles, name="Notifications")
             if payload is not None:
                 if payload.message_id == int(msgid):
                     if str(payload.emoji) == "🤖":
@@ -125,6 +126,8 @@ async def on_raw_reaction_add(payload=None):
                         await payload.member.add_roles(role_eh)
                     elif str(payload.emoji) == "🟡":
                         await payload.member.add_roles(role_pc)
+                    elif str(payload.emoji) == "📢":
+                        await payload.member.add_roles(role_no)
 
 
 # Remove role if reaction removed
@@ -143,6 +146,7 @@ async def on_raw_reaction_remove(payload=None):
         role_ce = discord.utils.get(guild.roles, name="Cybersecurity Expert")
         role_eh = discord.utils.get(guild.roles, name="Ethical Hacker")
         role_pc = discord.utils.get(guild.roles, name="Python Coder")
+        role_no = discord.utils.get(guild.roles, name="Notifications")
         if payload is not None:
             if payload.message_id == int(msgid):
                 if str(payload.emoji) == "🤖":
@@ -154,6 +158,9 @@ async def on_raw_reaction_remove(payload=None):
                 elif str(payload.emoji) == "🟡":
                     member = guild.get_member(int(payload.user_id))
                     await member.remove_roles(role_pc)
+                elif str(payload.emoji) == "📢":
+                    member = guild.get_member(int(payload.user_id))
+                    await member.remove_roles(role_no)
 
 
 # Gives the Member role after membership screening
@@ -220,7 +227,7 @@ async def help(ctx):
                      "Support commands:",
                      "Staff commands:",
                      "Developer commands:"]
-    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole EH/CE/PC:** Command to join one of the joinable roles by command.\n**$leaverole EH/CE/PC:** Command to leave one of the joinable roles by command.",
+    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole EH/CE/PC/NO:** Command to join one of the joinable roles by command.\n**$leaverole EH/CE/PC/NO:** Command to leave one of the joinable roles by command.",
                       "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
                       "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:** Command to setup the reaction role system.",
                       "**$shutdown:** Shutdown the bot completely.\n**$dev_status:** Information for the developer."]
@@ -343,6 +350,12 @@ async def joinrole(ctx, role):
         embed = discord.Embed(title="Role added", description=f"Added the {role_pc.name} role",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
+    elif roletxt == "NO":
+        role_no = discord.utils.get(ctx.guild.roles, name="Notifications")
+        await ctx.author.add_roles(role_no)
+        embed = discord.Embed(title="Role added", description=f"Added the {role_no.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
     else:
         embed = discord.Embed(title="Error",
                               description=f"{ctx.author.mention}, You don't have permission to join that role or an error occurred",
@@ -372,6 +385,12 @@ async def leaverole(ctx, role):
         role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
         await ctx.author.remove_roles(role_pc)
         embed = discord.Embed(title="Role removed", description=f"Removed the {role_pc.name} role",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == "NO":
+        role_no = discord.utils.get(ctx.guild.roles, name="Notifications")
+        await ctx.author.remove_roles(role_no)
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_no.name} role",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     else:
@@ -518,6 +537,13 @@ async def addrole(ctx, member: discord.Member, role):
         embed = discord.Embed(title="Role added", description=f"Added the {role_ce.name} role to {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
+    elif roletxt == 'NO':
+        role_no = discord.utils.get(ctx.guild.roles, name="Notifications")
+        await member.add_roles(role_no)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role added", description=f"Added the {role_no.name} role to {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
     else:
         await ctx.message.delete()
         embed = discord.Embed(title="Error",
@@ -566,6 +592,13 @@ async def delrole(ctx, member: discord.Member, role):
         await member.remove_roles(role_ce)
         await ctx.message.delete()
         embed = discord.Embed(title="Role removed", description=f"Removed the {role_ce.name} role from {member.mention}",
+                              color=0x5cffb0)
+        await ctx.send(embed=embed)
+    elif roletxt == 'NO':
+        role_no = discord.utils.get(ctx.guild.roles, name="Notifications")
+        await member.remove_roles(role_no)
+        await ctx.message.delete()
+        embed = discord.Embed(title="Role removed", description=f"Removed the {role_no.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     else:
@@ -678,12 +711,16 @@ async def reactionrole(ctx):
                         inline=False)
         embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.",
                         inline=False)
+        embed.add_field(name="Notifications", value="React with :loudspeaker: to receive the Notifications role.",
+                        inline=False)
         message_ = await channel_chosen_parsed.send(embed=embed)
         await message_.add_reaction("🤖")
         time.sleep(1)
         await message_.add_reaction("💻")
         time.sleep(1)
         await message_.add_reaction("🟡")
+        time.sleep(1)
+        await message_.add_reaction("📢")
 
         def check(m):
             return m.author.id == ctx.author.id
