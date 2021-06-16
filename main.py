@@ -207,6 +207,7 @@ async def on_message(message):
 
 
 async def on_member_join(member):
+    print("yes")
     for channel in member.guild.text_channels:
         if channel.name.startswith("Members:"):
             print("yes")
@@ -223,6 +224,7 @@ async def on_member_join(member):
 
 
 async def on_member_remove(member):
+    print("yes")
     for channel in member.guild.text_channels:
         if channel.name.startswith("Members:"):
             print("yes")
