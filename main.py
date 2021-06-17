@@ -208,11 +208,8 @@ async def on_message(message):
 
 @bot.event
 async def on_member_join(member):
-    print("yes")
     for channel in member.guild.voice_channels:
-        print(channel.name)
         if channel.name.startswith("Members:"):
-            print("yes")
             await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
         if channel.name.startswith("All Members:"):
             await channel.edit(name=f"All Members: {member.guild.member_count}")
@@ -226,7 +223,6 @@ async def on_member_join(member):
 @bot.event
 async def on_member_remove(member):
     for channel in member.guild.voice_channels:
-        print(channel.name)
         if channel.name.startswith("Members:"):
             await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
         if channel.name.startswith("All Members:"):
