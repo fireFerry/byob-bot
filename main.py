@@ -244,7 +244,6 @@ async def status(ctx):
         embed = discord.Embed(title="Status",
                               description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms",
                               color=0x5cffb0)
-        await ctx.message.delete()
         await ctx.channel.send(embed=embed)
     else:
         embed = discord.Embed(title="Status",
