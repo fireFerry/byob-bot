@@ -99,6 +99,8 @@ async def on_guild_remove(guild):
 async def on_ready():
     await bot.change_presence(status=discord.Status.online)
     await bot.change_presence(activity=discord.Game(name="byob | $help"))
+    global startdate
+    startdate = datetime.now()
     print(bot.user.name)
     print(bot.user.id)
 
@@ -243,8 +245,11 @@ async def on_member_remove(member):
 
 @bot.command(aliases=['version'])
 async def status(ctx):
+    now = datetime.now()
+    uptime = startdate - now
+    uptime = uptime.strftime('%d:%H:%M')
     embed = discord.Embed(title="Status",
-                          description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms",
+                          description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms\n **Uptime**: {uptime}",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
