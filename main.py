@@ -97,6 +97,8 @@ async def on_guild_remove(guild):
 
 @bot.event
 async def on_ready():
+    launch_time = datetime.datetime.utcnow()
+    global launch_time
     await bot.change_presence(status=discord.Status.online)
     await bot.change_presence(activity=discord.Game(name="byob | $help"))
     print(bot.user.name)
@@ -242,8 +244,8 @@ async def on_member_remove(member):
 
 
 @bot.command(aliases=['version'])
-async def status(ctx, self):
-    delta_uptime = datetime.datetime.utcnow() - self.bot.launch_time
+async def status(ctx):
+    delta_uptime = datetime.datetime.utcnow() - launch_time
     hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
     minutes, seconds = divmod(remainder, 60)
     days, hours = divmod(hours, 24)
