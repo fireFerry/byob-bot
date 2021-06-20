@@ -193,8 +193,8 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     print(message.guild)
-        if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
-            print("test")
+    if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
+        print("test")
         await bot.process_commands(message)
 
 
