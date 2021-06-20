@@ -202,8 +202,9 @@ async def on_message(message):
             for channel in guild.text_channels:
                 if channel.name.startswith("bot-dm"):
                     if not message.content.startswith("$"):
-                        embed = discord.Embed(title="New message", description=f"{message.content}")
+                        embed = discord.Embed(title=f"New message by {message.author.name}", description=f"{message.content}")
                         embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
+                        embed.set_footer(text=f"ID: {message.author.id}")
                         await channel.send(embed=embed)
         await bot.process_commands(message)
     else:
@@ -816,6 +817,7 @@ async def reply(ctx, member: discord.Member, message):
     await ctx.message.delete()
     channel = await member.create_dm()
     await channel.send(embed=embed)
+    await ctx.send(embed=embed)
 
 
 # DEVELOPER COMMANDS
