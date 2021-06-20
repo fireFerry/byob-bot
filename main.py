@@ -238,7 +238,7 @@ async def on_member_remove(member):
 
 @bot.command(aliases=['version'])
 async def status(ctx):
-    if isinstance(ctx.channel, discord.channel.DMChannel):
+    if isinstance(ctx.message.channel, discord.channel.DMChannel):
         embed = discord.Embed(title="Status",
                               description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms",
                               color=0x5cffb0)
