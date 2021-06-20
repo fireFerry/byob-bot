@@ -195,9 +195,7 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    print(message.guild)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
-        print("test")
         await bot.process_commands(message)
     else:
         await bot.process_commands(message)
@@ -238,19 +236,12 @@ async def on_member_remove(member):
 
 @bot.command(aliases=['version'])
 async def status(ctx):
-    print(ctx.message.channel)
-    if isinstance(ctx.message.channel, discord.channel.DMChannel):
-        print("test2")
-        embed = discord.Embed(title="Status",
-                              description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms",
-                              color=0x5cffb0)
-        await ctx.channel.send(embed=embed)
-    else:
-        embed = discord.Embed(title="Status",
-                              description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms",
-                              color=0x5cffb0)
+    embed = discord.Embed(title="Status",
+                          description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms",
+                          color=0x5cffb0)
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 
 # commands list
@@ -323,7 +314,8 @@ async def help(ctx):
 async def ping(ctx):
     embed = discord.Embed(title="Ping", description=f"Pong! Responded with a time of {round(bot.latency * 1000)}ms",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -335,7 +327,8 @@ async def github(ctx):
     embed = discord.Embed(title="Github",
                           description="This bot is open-source. The link to the project can be found here: https://github.com/fireFerry/byob-bot",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -347,7 +340,8 @@ async def issues(ctx):
     embed = discord.Embed(title="Feature requests",
                           description="If you have any issues with the Byob Bot, or if you have a feature that you want added to the Byob Bot? Let me know! You can submit issues and feature requests here: https://github.com/fireFerry/byob-bot/issues/new/choose",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -359,7 +353,8 @@ async def bugs(ctx):
     embed = discord.Embed(title="Bugs",
                           description="Do you think that you've found a bug with Byob Bot? No problem! Submit bug reports here: https://github.com/fireFerry/byob-bot/issues/new/choose",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -447,7 +442,8 @@ async def support(ctx):
     embed = discord.Embed(title="Support",
                           description="**1.** Ask your question, don't ask to ask.\n**2.** Be patient for support. Don't mention staff, this will result in a punishment.\n**3.** Don't repeat your questions, and don't put them in multiple channels.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -459,7 +455,8 @@ async def portforwarding(ctx):
     embed = discord.Embed(title="Port forwarding",
                           description="Port forwarding is done on your router, and may be called port mapping, or virtual servers too. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to your machine that you're hosting byob on.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -471,7 +468,8 @@ async def requirements(ctx):
     embed = discord.Embed(title="Requirements", description="requirements for byob:", color=0x5cffb0)
     embed.add_field(name="OS", value="A Linux distribution", inline=False)
     embed.add_field(name="Software", value="**1.** Python 3 & pip\n**2.** Docker", inline=False)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -483,7 +481,8 @@ async def wsl(ctx):
     embed = discord.Embed(title="Windows Subsystem for Linux",
                           description="Using wsl for byob isn't supported. This means that you will receive no support if you try to use byob with wsl. Wsl is if you run a linux terminal on Windows, also known as the Ubuntu/Kali from the Microsoft store.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -495,7 +494,8 @@ async def vps(ctx):
     embed = discord.Embed(title="Virtual Private Server",
                           description="Byob is not recommended on a vps. If you are using a vps for byob you may need to do some extra configuration with your vps provider. You also need to be able to open ports if you want to use byob, staff will not help with this.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -507,7 +507,8 @@ async def executable(ctx):
     embed = discord.Embed(title="Executable generation",
                           description="If your executable doesn't generate correctly, here are some things you should check:\n**1.** Make sure you are using the latest version of byob and rebooted at least once.\n**2.** Run this command: sudo usermod -aG docker $USER && sudo chmod 666 /var/run/docker.sock, and reboot your system.\n**3.** If this still doesn't work, uninstall docker, and run startup.sh again, and reboot your system.\n**4.** If you tried all of this and it didn't help, you can try using pyinstaller to compile the python payload manually.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -519,7 +520,8 @@ async def wiki(ctx):
     embed = discord.Embed(title="Wiki",
                           description="web-gui wiki: https://byob.dev/guide\ncli wiki: https://github.com/malwaredllc/byob/wiki\nGitHub: https://github.com/malwaredllc/byob/",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
