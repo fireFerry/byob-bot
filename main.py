@@ -98,7 +98,7 @@ async def on_guild_remove(guild):
 @bot.event
 async def on_ready():
     global launch_time
-    launch_time = datetime.datetime.utcnow()
+    launch_time = datetime.utcnow()
     await bot.change_presence(status=discord.Status.online)
     await bot.change_presence(activity=discord.Game(name="byob | $help"))
     print(bot.user.name)
