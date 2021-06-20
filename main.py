@@ -20,9 +20,12 @@ intents.members = True
 
 
 def get_prefix(_, message):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-    return prefixes[str(message.guild.id)]
+    if message.guild is None:
+        return "$"
+    else:
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+        return prefixes[str(message.guild.id)]
 
 
 # Gets the on/off status for auto-role
@@ -195,6 +198,8 @@ async def on_message(message):
     print(message.guild)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         print("test")
+        await bot.process_commands(message)
+    else:
         await bot.process_commands(message)
 
 
