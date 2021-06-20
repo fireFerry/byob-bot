@@ -245,7 +245,7 @@ async def on_member_remove(member):
 
 @bot.command(aliases=['version'])
 async def status(ctx):
-    delta_uptime = datetime.datetime.utcnow() - launch_time
+    delta_uptime = datetime.utcnow() - launch_time
     hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
     minutes, seconds = divmod(remainder, 60)
     days, hours = divmod(hours, 24)
