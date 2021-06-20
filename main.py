@@ -193,18 +193,8 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     print(message.guild)
-    if message.guild is None:
         if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
             print("test")
-        await bot.process_commands(message)
-    elif bot.user.mentioned_in(message):
-        with open('prefixes.json', 'r') as f:
-            prefixes = json.load(f)
-        currentprefix = prefixes[f"{message.guild.id}"]
-        embed = discord.Embed(title="Mentioned!",
-                              description=f"My prefix in this server: **{currentprefix}**\nHelp command: **{currentprefix}help**",
-                              color=0x5cffb0)
-        await message.channel.send(embed=embed)
         await bot.process_commands(message)
 
 
