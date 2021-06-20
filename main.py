@@ -196,6 +196,13 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
+        for guild in bot.guilds:
+            for channel in guild.text_channels:
+                if channel.name.startswith("bot-dm"):
+                    if not message.content.startswith("$"):
+                        embed = discord.Embed(title="New message", description=f"{message.content}")
+                        embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
+                        await channel.send(embed=embed)
         await bot.process_commands(message)
     else:
         await bot.process_commands(message)
