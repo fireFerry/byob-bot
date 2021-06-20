@@ -811,7 +811,7 @@ async def reactionrole(ctx):
 
 @bot.command(aliases=['r'])
 @commands.has_role('Support Team')
-async def reply(ctx, member: discord.Member, message):
+async def reply(ctx, member: discord.Member, *, message):
     embed = discord.Embed(description=f"{message}")
     embed.set_author(name=f"{ctx.author.name}", icon_url=f"{ctx.author.avatar_url}")
     await ctx.message.delete()
