@@ -807,7 +807,8 @@ async def reactionrole(ctx):
 @commands.is_owner()
 async def shutdown(ctx):
     await bot.change_presence(status=discord.Status.invisible)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     embed = discord.Embed(title="Shutdown", description=f"{bot.user.name} has been shut down.", color=0x5cffb0)
     await ctx.send(embed=embed)
     await bot.close()
