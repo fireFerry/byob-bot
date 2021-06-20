@@ -192,7 +192,11 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if bot.user.mentioned_in(message):
+    if message.guild.id is None:
+        if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
+            print("test")
+        await bot.process_commands(message)
+    elif bot.user.mentioned_in(message):
         with open('prefixes.json', 'r') as f:
             prefixes = json.load(f)
         currentprefix = prefixes[f"{message.guild.id}"]
@@ -200,9 +204,7 @@ async def on_message(message):
                               description=f"My prefix in this server: **{currentprefix}**\nHelp command: **{currentprefix}help**",
                               color=0x5cffb0)
         await message.channel.send(embed=embed)
-    if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
-        print("test")
-    await bot.process_commands(message)
+        await bot.process_commands(message)
 
 
 # Change member count on join
