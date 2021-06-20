@@ -192,7 +192,7 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if message.guild.id is None:
+    if message.guild is None:
         if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
             print("test")
         await bot.process_commands(message)
