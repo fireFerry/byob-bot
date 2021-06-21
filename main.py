@@ -198,6 +198,7 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     if hasattr(message.channel, 'category'):
+        print("yes")
         if message.channel.category == "Active tickets":
             print("yes")
             ctx = await bot.get_context(message)
@@ -269,7 +270,6 @@ async def on_message(message):
         #                 embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
         #                 embed.set_footer(text=f"ID: {message.author.id}")
         #                 await channel.send(embed=embed)
-        await bot.process_commands(message)
     else:
         await bot.process_commands(message)
 
