@@ -203,6 +203,7 @@ async def on_message(message):
         support_server = bot.get_guild(guild_id)
         print(support_server.id)
         member = await support_server.fetch_member(user.id)
+        print(member.nick)
 
         match = False
 
