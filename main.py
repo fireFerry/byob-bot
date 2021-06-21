@@ -197,9 +197,9 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    print(message.channel)
     if hasattr(message.channel, 'category'):
         if message.channel.category == "Active tickets":
+            print("yes")
             ctx = await bot.get_context(message)
             send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
             dm_channel = await send_member.create_dm()
