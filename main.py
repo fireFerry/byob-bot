@@ -255,7 +255,10 @@ async def on_message(message):
                                                              category=support_category)
 
                 user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
-        await user_support.send(message.content)
+        if message.content.startswith("$"):
+            await bot.process_commands(message)
+        else:
+            await user_support.send(message.content)
 
         # for guild in bot.guilds:
         #     for channel in guild.text_channels:
