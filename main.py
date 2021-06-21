@@ -201,6 +201,7 @@ async def on_message(message):
         user = message.author
         guild_id = 817532239783919637
         support_server = bot.get_guild(guild_id)
+        print(support_server.id)
         member = await support_server.fetch_member(user.id)
 
         match = False
