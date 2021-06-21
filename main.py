@@ -200,7 +200,7 @@ async def on_message(message):
     if hasattr(message.channel, 'category'):
         print("yes")
         print(message.channel.category)
-        if message.channel.category == "Active tickets":
+        if str(message.channel.category) == "Active tickets":
             print("yes")
             ctx = await bot.get_context(message)
             send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
