@@ -244,8 +244,7 @@ async def on_message(message):
             if user_support is None:
                 user_channel_permissions = {
                     support_server.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),
-                    support_server.me: discord.PermissionOverwrite(read_messages=True, send_messages=True),
-                    user: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+                    support_server.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
                 }
                 if member.nick is None:
                     await support_server.create_text_channel(name=member.name, overwrites=user_channel_permissions,
