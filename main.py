@@ -242,16 +242,14 @@ async def on_message(message):
                                                      overwrites=support_category_permissions)
                 support_category = discord.utils.get(support_server.categories, name=support_category_name)
             if user_support is None:
-                user_channel_permissions = {
-                    support_server.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),
-                    support_server.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
-                }
+                # user_channel_permissions = {
+                #     support_server.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),
+                #     support_server.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+                # }
                 if member.nick is None:
-                    await support_server.create_text_channel(name=member.name, overwrites=user_channel_permissions,
-                                                             category=support_category)
+                    await support_server.create_text_channel(name=member.name, category=support_category)
                 else:
-                    await support_server.create_text_channel(name=member.nick, overwrites=user_channel_permissions,
-                                                             category=support_category)
+                    await support_server.create_text_channel(name=member.nick, category=support_category)
 
                 user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
         if message.content.startswith("$"):
