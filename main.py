@@ -197,7 +197,14 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
+    print(message.channel)
+    print(message.channel.category)
+    if message.channel.category == "Active tickets":
+        ctx = await bot.get_context(message)
+        send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
+        dm_channel = await send_member.create_dm()
+        dm_channel.send(message.content)
+    elif isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         guild_id = 817532239783919637
         support_server = bot.get_guild(guild_id)
@@ -263,11 +270,6 @@ async def on_message(message):
         #                 embed.set_footer(text=f"ID: {message.author.id}")
         #                 await channel.send(embed=embed)
         await bot.process_commands(message)
-    if message.channel.category == "Active tickets":
-        ctx = await bot.get_context(message)
-        send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
-        dm_channel = await send_member.create_dm()
-        dm_channel.send(message.content)
 
     else:
         await bot.process_commands(message)
