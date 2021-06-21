@@ -201,9 +201,7 @@ async def on_message(message):
         user = message.author
         guild_id = 817532239783919637
         support_server = bot.get_guild(guild_id)
-        print(support_server.id)
         member = await support_server.fetch_member(user.id)
-        print(member.nick)
 
         match = False
 
@@ -212,14 +210,20 @@ async def on_message(message):
 
             if channel.name == member.nick.lower():
                 match = True
-                user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+                if member.nick is None:
+                    user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+                else:
+                    user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
                 break
 
         if not match:
 
             support_category_name = 'Active tickets'
             support_category = discord.utils.get(support_server.categories, name=support_category_name)
-            user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
+            if member.nick is None:
+                user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+            else:
+                user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
 
             if support_category is None:
                 support_category_permissions = {
@@ -234,8 +238,13 @@ async def on_message(message):
                     support_server.me: discord.PermissionOverwrite(read_messages=True, send_messages=True),
                     user: discord.PermissionOverwrite(read_messages=True, send_messages=True)
                 }
-                await support_server.create_text_channel(name=user.name, overwrites=user_channel_permissions,
-                                                         category=support_category)
+                if member.nick is None:
+                    await support_server.create_text_channel(name=member.name, overwrites=user_channel_permissions,
+                                                             category=support_category)
+                else:
+                    await support_server.create_text_channel(name=member.nick, overwrites=user_channel_permissions,
+                                                             category=support_category)
+
                 user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
         await user_support.send(message.content)
 
