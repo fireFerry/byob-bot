@@ -198,14 +198,54 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
-        for guild in bot.guilds:
-            for channel in guild.text_channels:
-                if channel.name.startswith("bot-dm"):
-                    if not message.content.startswith("$"):
-                        embed = discord.Embed(title=f"New message by {message.author.name}", description=f"{message.content}")
-                        embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
-                        embed.set_footer(text=f"ID: {message.author.id}")
-                        await channel.send(embed=embed)
+        user = message.author
+        guild_id = 817532239783919637
+        support_server = bot.get_guild(guild_id)
+        member = support_server.get_member(user.id)
+
+        match = False
+
+        for channel in support_server.text_channels:
+            await asyncio.sleep(0)
+
+            if channel.name == member.nick.lower():
+                match = True
+                user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+                break
+
+        if not match:
+
+            support_category_name = 'Active tickets'
+            support_category = discord.utils.get(support_server.categories, name=support_category_name)
+            user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
+
+            if support_category is None:
+                support_category_permissions = {
+                    support_server.default_role: discord.PermissionOverwrite(send_messages=False)
+                }
+                await support_server.create_category(name=support_category_name,
+                                                     overwrites=support_category_permissions)
+                support_category = discord.utils.get(support_server.categories, name=support_category_name)
+            if user_support is None:
+                user_channel_permissions = {
+                    support_server.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),
+                    support_server.me: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+                    user: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+                }
+                await support_server.create_text_channel(name=user.name, overwrites=user_channel_permissions,
+                                                         category=support_category)
+                user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
+        await user_support.send(message.content)
+
+        # for guild in bot.guilds:
+        #     for channel in guild.text_channels:
+        #         if channel.name.startswith("bot-dm"):
+        #             if not message.content.startswith("$"):
+        #                 embed = discord.Embed(title=f"New message by {message.author.name}",
+        #                                       description=f"{message.content}")
+        #                 embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
+        #                 embed.set_footer(text=f"ID: {message.author.id}")
+        #                 await channel.send(embed=embed)
         await bot.process_commands(message)
     else:
         await bot.process_commands(message)
