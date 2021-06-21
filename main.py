@@ -242,10 +242,6 @@ async def on_message(message):
                                                      overwrites=support_category_permissions)
                 support_category = discord.utils.get(support_server.categories, name=support_category_name)
             if user_support is None:
-                # user_channel_permissions = {
-                #     support_server.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),
-                #     support_server.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
-                # }
                 if member.nick is None:
                     await support_server.create_text_channel(name=member.name, category=support_category)
                 else:
@@ -267,6 +263,12 @@ async def on_message(message):
         #                 embed.set_footer(text=f"ID: {message.author.id}")
         #                 await channel.send(embed=embed)
         await bot.process_commands(message)
+    elif message.channel.category == "Active tickets":
+        ctx = await bot.get_context(message)
+        send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
+        dm_channel = await send_member.create_dm()
+        dm_channel.send(message.content)
+
     else:
         await bot.process_commands(message)
 
