@@ -205,7 +205,7 @@ async def on_message(message):
             ctx = await bot.get_context(message)
             send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
             dm_channel = await send_member.create_dm()
-            dm_channel.send(message.content)
+            await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         guild_id = 817532239783919637
