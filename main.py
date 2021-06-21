@@ -208,13 +208,22 @@ async def on_message(message):
         for channel in support_server.text_channels:
             await asyncio.sleep(0)
 
-            if channel.name == member.nick.lower():
-                match = True
-                if member.nick is None:
-                    user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
-                else:
-                    user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
-                break
+            if member.nick is not None:
+                if channel.name == member.nick.lower():
+                    match = True
+                    if member.nick is None:
+                        user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+                    else:
+                        user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+                    break
+            else:
+                if channel.name == member.name.lower():
+                    match = True
+                    if member.nick is None:
+                        user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+                    else:
+                        user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+                    break
 
         if not match:
 
