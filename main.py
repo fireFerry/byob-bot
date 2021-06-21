@@ -263,7 +263,7 @@ async def on_message(message):
         #                 embed.set_footer(text=f"ID: {message.author.id}")
         #                 await channel.send(embed=embed)
         await bot.process_commands(message)
-    elif message.channel.category == "Active tickets":
+    if message.channel.category == "Active tickets":
         ctx = await bot.get_context(message)
         send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
         dm_channel = await send_member.create_dm()
