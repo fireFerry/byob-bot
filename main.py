@@ -210,7 +210,7 @@ async def on_message(message):
                     prefixes = json.load(f)
                 currentprefix = prefixes[f"{message.guild.id}"]
                 if message.content.startswith(currentprefix):
-                    await bot.process_commands(message)
+                    print("test")# await bot.process_commands(message)
                 else:
                     await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
