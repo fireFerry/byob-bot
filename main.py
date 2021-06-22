@@ -271,6 +271,17 @@ async def on_message(message):
                     await user_support.send(content=message.content, file=sent_attachment)
                 else:
                     await user_support.send(message.content)
+
+
+    # for guild in bot.guilds:
+        #     for channel in guild.text_channels:
+        #         if channel.name.startswith("bot-dm"):
+        #             if not message.content.startswith("$"):
+        #                 embed = discord.Embed(title=f"New message by {message.author.name}",
+        #                                       description=f"{message.content}")
+        #                 embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
+        #                 embed.set_footer(text=f"ID: {message.author.id}")
+        #                 await channel.send(embed=embed)
     else:
         await bot.process_commands(message)
 
