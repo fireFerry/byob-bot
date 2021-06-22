@@ -259,7 +259,7 @@ async def on_message(message):
         else:
             print(message.attachments)
             if str(message.attachments) != "[]":
-                sent_attachment = await message.attachments.to_file(use_cached=False, spoiler=False)
+                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
                 await user_support.send(content=message.content, file=sent_attachment)
             else:
                 await user_support.send(message.content)
