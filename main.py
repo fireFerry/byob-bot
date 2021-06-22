@@ -206,7 +206,10 @@ async def on_message(message):
                 sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
                 await dm_channel.send(content=message.content, file=sent_attachment)
             else:
-                if message.content.startswith("$"):
+                with open('prefixes.json', 'r') as f:
+                    prefixes = json.load(f)
+                currentprefix = prefixes[f"{message.guild.id}"]
+                if message.content.startswith(currentprefix):
                     await bot.process_commands(message)
                 else:
                     await dm_channel.send(message.content)
