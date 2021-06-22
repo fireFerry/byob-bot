@@ -11,7 +11,8 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.9'
+byob_bot_version = '2.0'
+guild_id = 817532239783919637
 intents = discord.Intents.default()
 intents.members = True
 
@@ -213,7 +214,6 @@ async def on_message(message):
                     await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
-        guild_id = 817532239783919637
         support_server = bot.get_guild(guild_id)
         member = await support_server.fetch_member(user.id)
 
@@ -279,16 +279,6 @@ async def on_message(message):
                 await user_support.send(content=message.content, file=sent_attachment)
             else:
                 await user_support.send(message.content)
-
-        # for guild in bot.guilds:
-        #     for channel in guild.text_channels:
-        #         if channel.name.startswith("bot-dm"):
-        #             if not message.content.startswith("$"):
-        #                 embed = discord.Embed(title=f"New message by {message.author.name}",
-        #                                       description=f"{message.content}")
-        #                 embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
-        #                 embed.set_footer(text=f"ID: {message.author.id}")
-        #                 await channel.send(embed=embed)
     else:
         await bot.process_commands(message)
 
@@ -896,6 +886,7 @@ async def reactionrole(ctx):
 async def close(ctx):
     if hasattr(ctx.message.channel, 'category'):
         if str(ctx.channel.category) == "Active Tickets" and ctx.author != bot.user:
+            await ctx.message.delete()
             ticket_channel = ctx.channel
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
             dm_channel = await send_member.create_dm()
