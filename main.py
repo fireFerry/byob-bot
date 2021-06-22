@@ -206,13 +206,9 @@ async def on_message(message):
                 sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
                 await dm_channel.send(content=message.content, file=sent_attachment)
             else:
-                with open('prefixes.json', 'r') as f:
-                    prefixes = json.load(f)
-                currentprefix = prefixes[f"{message.guild.id}"]
-                if message.content.startswith(currentprefix):
-                    print("test")# await bot.process_commands(message)
-                else:
-                    await dm_channel.send(message.content)
+                await dm_channel.send(message.content)
+    if message.content.startswith("$"):
+        await bot.process_commands(message)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         guild_id = 817532239783919637
@@ -264,8 +260,6 @@ async def on_message(message):
                     await support_server.create_text_channel(name=member.nick, category=support_category)
 
                 user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
-        if message.content.startswith("$"):
-            await bot.process_commands(message)
         else:
             if str(message.attachments) != "[]":
                 sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
@@ -887,11 +881,8 @@ async def reactionrole(ctx):
 @bot.command()
 @commands.has_role('Support Team')
 async def close(ctx):
-    print('1')
     if hasattr(ctx.message.channel, 'category'):
-        print('2')
         if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
-            print('3')
             ticket_channel = ctx.channel
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
             dm_channel = await send_member.create_dm()
@@ -902,10 +893,8 @@ async def close(ctx):
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
-            print('4')
             await asyncio.sleep(5)
-            print('5')
-            # await ticket_channel.delete(reason="Ticket closed.")
+            await ticket_channel.delete(reason="Ticket closed.")
 
 
 # DEVELOPER COMMANDS
