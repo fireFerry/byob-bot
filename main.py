@@ -199,18 +199,18 @@ async def on_command_error(_, error):
 async def on_message(message):
     if hasattr(message.channel, 'category'):
         if str(message.channel.category) == "Active tickets" and message.author != bot.user:
-            ctx = await bot.get_context(message)
-            send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
-            dm_channel = await send_member.create_dm()
-            if str(message.attachments) != "[]":
-                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                await dm_channel.send(content=message.content, file=sent_attachment)
+            with open('prefixes.json', 'r') as f:
+                prefixes = json.load(f)
+            currentprefix = prefixes[f"{message.guild.id}"]
+            if message.content.startswith(currentprefix):
+                return
             else:
-                with open('prefixes.json', 'r') as f:
-                    prefixes = json.load(f)
-                currentprefix = prefixes[f"{message.guild.id}"]
-                if message.content.startswith(currentprefix):
-                    await bot.process_commands(message)
+                ctx = await bot.get_context(message)
+                send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
+                dm_channel = await send_member.create_dm()
+                if str(message.attachments) != "[]":
+                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                    await dm_channel.send(content=message.content, file=sent_attachment)
                 else:
                     await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
