@@ -889,8 +889,6 @@ async def reactionrole(ctx):
 async def close(ctx):
     if hasattr(ctx.message.channel, 'category'):
         if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
-            def ticket_delete():
-                await ticket_channel.delete(reason="Ticket closed.")
             ticket_channel = ctx.channel
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
             dm_channel = await send_member.create_dm()
@@ -902,7 +900,7 @@ async def close(ctx):
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
             time.sleep(5)
-            ticket_delete()
+            await ticket_channel.delete(reason="Ticket closed.")
 
 
 # DEVELOPER COMMANDS
