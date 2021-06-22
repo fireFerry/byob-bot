@@ -199,6 +199,7 @@ async def on_command_error(_, error):
 async def on_message(message):
     if hasattr(message.channel, 'category'):
         if str(message.channel.category) == "Active tickets" and message.author != bot.user:
+            print("test")
             with open('prefixes.json', 'r') as f:
                 prefixes = json.load(f)
             currentprefix = prefixes[f"{message.guild.id}"]
