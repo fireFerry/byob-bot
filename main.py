@@ -890,7 +890,7 @@ async def close(ctx):
     if hasattr(ctx.message.channel, 'category'):
         async def ticket_delete():
             await ticket_channel.delete(reason="Ticket closed.")
-            return
+            break
         if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
             ticket_channel = ctx.channel
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
