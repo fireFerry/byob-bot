@@ -900,7 +900,7 @@ async def close(ctx):
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
             time.sleep(1)
-            await ctx.channel.delete(reason="Ticket closed.")
+            await ticket_channel.delete(reason="Ticket closed.")
 
 
 # DEVELOPER COMMANDS
