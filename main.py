@@ -896,9 +896,9 @@ async def close(ctx):
                                   color=0xc9cb65)
             await dm_channel.send(embed=embed)
             await ctx.message.delete()
-            embed2 = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
-                                   color=0xaa5858)
-            await ctx.send(embed=embed2)
+            embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
+                                  color=0xaa5858)
+            await ctx.send(embed=embed)
             time.sleep(5)
             await ctx.channel.delete(reason="Ticket closed.")
 
