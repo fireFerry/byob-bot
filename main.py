@@ -205,7 +205,7 @@ async def on_message(message):
             currentprefix = prefixes[f"{message.guild.id}"]
             if message.content.startswith(currentprefix):
                 print("test2")
-                await bot.process_commands(message)
+                # await bot.process_commands(message)
             else:
                 ctx = await bot.get_context(message)
                 send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
