@@ -888,9 +888,6 @@ async def reactionrole(ctx):
 @commands.has_role('Support Team')
 async def close(ctx):
     if hasattr(ctx.message.channel, 'category'):
-        async def ticket_delete():
-            await ticket_channel.delete(reason="Ticket closed.")
-            break
         if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
             ticket_channel = ctx.channel
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
@@ -903,7 +900,8 @@ async def close(ctx):
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
             time.sleep(5)
-            await ticket_delete()
+            await ticket_channel.delete(reason="Ticket closed.")
+            return
 
 
 # DEVELOPER COMMANDS
