@@ -198,10 +198,7 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     if hasattr(message.channel, 'category'):
-        print("yes")
-        print(message.channel.category)
         if str(message.channel.category) == "Active tickets" and message.author != bot.user:
-            print("yes")
             ctx = await bot.get_context(message)
             send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
             dm_channel = await send_member.create_dm()
@@ -260,7 +257,11 @@ async def on_message(message):
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
-            await user_support.send(message.content)
+            print(message.attachments)
+            if message.attachments is not None:
+                await user_support.send(content=message.content, files=message.attachments)
+            else:
+                await user_support.send(message.content)
 
         # for guild in bot.guilds:
         #     for channel in guild.text_channels:
@@ -873,15 +874,23 @@ async def reactionrole(ctx):
 # reply command
 
 
-@bot.command(aliases=['r'])
+@bot.command()
 @commands.has_role('Support Team')
-async def reply(ctx, member: discord.Member, *, message):
-    embed = discord.Embed(description=f"{message}")
-    embed.set_author(name=f"{ctx.author.name}", icon_url=f"{ctx.author.avatar_url}")
-    await ctx.message.delete()
-    channel = await member.create_dm()
-    await channel.send(embed=embed)
-    await ctx.send(embed=embed)
+async def close(ctx, *, message):
+    if hasattr(ctx.message.channel, 'category'):
+        if str(message.channel.category) == "Active tickets" and message.author != bot.user:
+            send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
+            dm_channel = await send_member.create_dm()
+            embed = discord.Embed(title="Ticket Closed",
+                                  description="The support agent has closed the ticket. Sending a new message will open up a new ticket, so only do so if you have more questions.",
+                                  color=0xc9cb65)
+            await dm_channel.send(embed=embed)
+            await ctx.message.delete()
+            embed2 = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
+                                   color=0xaa5858)
+            await ctx.send(embed=embed2)
+            time.sleep(5)
+            await ctx.channel.delete(reason="Ticket closed.")
 
 
 # DEVELOPER COMMANDS
