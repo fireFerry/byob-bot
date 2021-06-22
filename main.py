@@ -206,7 +206,11 @@ async def on_message(message):
                 sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
                 await dm_channel.send(content=message.content, file=sent_attachment)
             else:
-                await dm_channel.send(message.content)
+                with open('prefixes.json', 'r') as f:
+                    prefixes = json.load(f)
+                currentprefix = prefixes[f"{ctx.guild.id}"]
+                if message.content != f"{currentprefix}close":
+                    await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         guild_id = 817532239783919637
