@@ -899,7 +899,7 @@ async def close(ctx):
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
-            await asyncio.sleep(5)
+            time.sleep(5)
             await ctx.channel.delete(reason="Ticket closed.")
 
 
