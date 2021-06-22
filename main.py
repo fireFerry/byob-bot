@@ -889,7 +889,6 @@ async def reactionrole(ctx):
 async def close(ctx):
     if hasattr(ctx.message.channel, 'category'):
         if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
-            await ctx.message.delete()
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
             dm_channel = await send_member.create_dm()
             embed = discord.Embed(title="Ticket Closed",
@@ -899,7 +898,7 @@ async def close(ctx):
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
                                   color=0xaa5858)
             await ctx.send(embed=embed)
-            time.sleep(5)
+            await asyncio.sleep(0)
             await ctx.channel.delete(reason="Ticket closed.")
 
 
