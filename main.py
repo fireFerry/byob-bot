@@ -905,7 +905,7 @@ async def close(ctx):
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
             print('4')
-            await asyncio.sleep(5)
+            # await asyncio.sleep(5)
             print('5')
             # await ticket_channel.delete(reason="Ticket closed.")
 
