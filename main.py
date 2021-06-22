@@ -886,10 +886,10 @@ async def reactionrole(ctx):
 
 @bot.command()
 @commands.has_role('Support Team')
-async def close(ctx, *, message):
+async def close(ctx):
     if hasattr(ctx.message.channel, 'category'):
-        if str(message.channel.category) == "Active tickets" and message.author != bot.user:
-            send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
+        if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
+            send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
             dm_channel = await send_member.create_dm()
             embed = discord.Embed(title="Ticket Closed",
                                   description="The support agent has closed the ticket. Sending a new message will open up a new ticket, so only do so if you have more questions.",
