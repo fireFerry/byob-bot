@@ -198,7 +198,7 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     if hasattr(message.channel, 'category'):
-        if str(message.channel.category) == "Active tickets" and message.author != bot.user:
+        if str(message.channel.category) == "Active Tickets" and message.author != bot.user:
             ctx = await bot.get_context(message)
             send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
             dm_channel = await send_member.create_dm()
@@ -212,74 +212,65 @@ async def on_message(message):
                 if message.content != f"{currentprefix}close":
                     await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
-        user = message.author
-        guild_id = 817532239783919637
-        support_server = bot.get_guild(guild_id)
-        member = await support_server.fetch_member(user.id)
+        if not message.content.startswith("$"):
+            user = message.author
+            guild_id = 817532239783919637
+            support_server = bot.get_guild(guild_id)
+            member = await support_server.fetch_member(user.id)
 
-        match = False
+            match = False
 
-        for channel in support_server.text_channels:
-            await asyncio.sleep(0)
+            for channel in support_server.text_channels:
+                await asyncio.sleep(0)
 
-            if member.nick is not None:
-                if channel.name == member.nick.lower():
-                    match = True
-                    if member.nick is None:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
-                    else:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
-                    break
-            else:
-                if channel.name == member.name.lower():
-                    match = True
-                    if member.nick is None:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
-                    else:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
-                    break
-
-        if not match:
-
-            support_category_name = 'Active tickets'
-            support_category = discord.utils.get(support_server.categories, name=support_category_name)
-            if member.nick is None:
-                user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
-            else:
-                user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
-
-            if support_category is None:
-                support_category_permissions = {
-                    support_server.default_role: discord.PermissionOverwrite(send_messages=False)
-                }
-                await support_server.create_category(name=support_category_name,
-                                                     overwrites=support_category_permissions)
-                support_category = discord.utils.get(support_server.categories, name=support_category_name)
-            if user_support is None:
-                if member.nick is None:
-                    await support_server.create_text_channel(name=member.name, category=support_category)
+                if member.nick is not None:
+                    if channel.name == member.nick.lower():
+                        match = True
+                        if member.nick is None:
+                            user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+                        else:
+                            user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+                        break
                 else:
-                    await support_server.create_text_channel(name=member.nick, category=support_category)
+                    if channel.name == member.name.lower():
+                        match = True
+                        if member.nick is None:
+                            user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+                        else:
+                            user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+                        break
 
-                user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
-        if message.content.startswith("$"):
-            await bot.process_commands(message)
-        else:
-            if str(message.attachments) != "[]":
-                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                await user_support.send(content=message.content, file=sent_attachment)
+            if not match:
+
+                support_category_name = 'Active Tickets'
+                support_category = discord.utils.get(support_server.categories, name=support_category_name)
+                if member.nick is None:
+                    user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+                else:
+                    user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+
+                if support_category is None:
+                    support_category_permissions = {
+                        support_server.default_role: discord.PermissionOverwrite(send_messages=False)
+                    }
+                    await support_server.create_category(name=support_category_name,
+                                                         overwrites=support_category_permissions)
+                    support_category = discord.utils.get(support_server.categories, name=support_category_name)
+                if user_support is None:
+                    if member.nick is None:
+                        await support_server.create_text_channel(name=member.name, category=support_category)
+                    else:
+                        await support_server.create_text_channel(name=member.nick, category=support_category)
+
+                    user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
+            if message.content.startswith("$"):
+                await bot.process_commands(message)
             else:
-                await user_support.send(message.content)
-
-        # for guild in bot.guilds:
-        #     for channel in guild.text_channels:
-        #         if channel.name.startswith("bot-dm"):
-        #             if not message.content.startswith("$"):
-        #                 embed = discord.Embed(title=f"New message by {message.author.name}",
-        #                                       description=f"{message.content}")
-        #                 embed.set_author(name=f"{message.author.name}", icon_url=f"{message.author.avatar_url}")
-        #                 embed.set_footer(text=f"ID: {message.author.id}")
-        #                 await channel.send(embed=embed)
+                if str(message.attachments) != "[]":
+                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                    await user_support.send(content=message.content, file=sent_attachment)
+                else:
+                    await user_support.send(message.content)
     else:
         await bot.process_commands(message)
 
@@ -886,7 +877,7 @@ async def reactionrole(ctx):
 @commands.has_role('Support Team')
 async def close(ctx):
     if hasattr(ctx.message.channel, 'category'):
-        if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
+        if str(ctx.channel.category) == "Active Tickets" and ctx.author != bot.user:
             ticket_channel = ctx.channel
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
             dm_channel = await send_member.create_dm()
