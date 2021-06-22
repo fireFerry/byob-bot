@@ -259,8 +259,16 @@ async def on_message(message):
                 if not message.content.startswith("$"):
                     if member.nick is None:
                         await support_server.create_text_channel(name=member.name, category=support_category)
+                        embed = discord.Embed(title="Ticket Opened",
+                                              description="Support will be with you shortly. Please explain your issue and include all relevant information.",
+                                              color=0x479a66)
+                        await message.author.send(embed=embed)
                     else:
                         await support_server.create_text_channel(name=member.nick, category=support_category)
+                        embed = discord.Embed(title="Ticket Opened",
+                                              description="Support will be with you shortly. Please explain your issue and include all relevant information.",
+                                              color=0x479a66)
+                        await message.author.send(embed=embed)
 
                     user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
         if message.content.startswith("$"):
