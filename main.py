@@ -202,7 +202,11 @@ async def on_message(message):
             ctx = await bot.get_context(message)
             send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
             dm_channel = await send_member.create_dm()
-            await dm_channel.send(message.content)
+            if str(message.attachments) != "[]":
+                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                await dm_channel.send(content=message.content, file=sent_attachment)
+            else:
+                await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         guild_id = 817532239783919637
@@ -257,7 +261,6 @@ async def on_message(message):
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
-            print(message.attachments)
             if str(message.attachments) != "[]":
                 sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
                 await user_support.send(content=message.content, file=sent_attachment)
