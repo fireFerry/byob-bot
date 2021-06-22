@@ -285,6 +285,7 @@ async def on_message(message):
         #                 embed.set_footer(text=f"ID: {message.author.id}")
         #                 await channel.send(embed=embed)
     else:
+        print("test3")
         await bot.process_commands(message)
 
 
@@ -889,11 +890,8 @@ async def reactionrole(ctx):
 @bot.command()
 @commands.has_role('Support Team')
 async def close(ctx):
-    print('1')
     if hasattr(ctx.message.channel, 'category'):
-        print('2')
         if str(ctx.channel.category) == "Active tickets" and ctx.author != bot.user:
-            print('3')
             ticket_channel = ctx.channel
             send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
             dm_channel = await send_member.create_dm()
@@ -904,10 +902,8 @@ async def close(ctx):
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
-            print('4')
-            # await asyncio.sleep(5)
-            print('5')
-            # await ticket_channel.delete(reason="Ticket closed.")
+            await asyncio.sleep(5)
+            await ticket_channel.delete(reason="Ticket closed.")
 
 
 # DEVELOPER COMMANDS
