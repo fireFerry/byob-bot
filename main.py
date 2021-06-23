@@ -887,7 +887,7 @@ async def close(ctx):
             transcript_file = discord.File(io.BytesIO(transcript.encode()),
                                            filename=f"transcript-{ctx.channel.name}.html")
             transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
-            transcript_channel.send(file=transcript_file)
+            await transcript_channel.send(file=transcript_file)
             await asyncio.sleep(5)
             await ticket_channel.delete(reason="Ticket closed.")
 
