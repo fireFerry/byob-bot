@@ -868,7 +868,8 @@ async def close(ctx):
         if str(ctx.channel.category) == "Active Tickets" and ctx.author != bot.user:
             await ctx.message.delete()
             ticket_channel = ctx.channel
-            send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name)
+            user_id = ctx.channel.name.split("-")[1]
+            send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
             embed = discord.Embed(title="Ticket Closed",
                                   description="The support agent has closed the ticket. Sending a new message will open up a new ticket, so only do so if you have more questions.",
