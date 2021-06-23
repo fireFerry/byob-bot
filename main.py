@@ -201,7 +201,9 @@ async def on_message(message):
     if hasattr(message.channel, 'category'):
         if str(message.channel.category) == "Active Tickets" and message.author != bot.user:
             ctx = await bot.get_context(message)
-            send_member = await commands.MemberConverter().convert(ctx, message.channel.name)
+            user_id = message.channel.name
+            user_id = user_id.split("-")[1]
+            send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
             if str(message.attachments) != "[]":
                 sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
@@ -221,7 +223,8 @@ async def on_message(message):
 
         for channel in support_server.text_channels:
             await asyncio.sleep(0)
-            if channel.name == str(member.id):
+            channel_name = channel.name.split("-")[1]
+            if channel_name == str(member.id):
                 match = True
                 user_support = discord.utils.get(support_server.text_channels, name=str(member.id))
                 break
@@ -241,13 +244,13 @@ async def on_message(message):
                 support_category = discord.utils.get(support_server.categories, name=support_category_name)
             if user_support is None:
                 if not message.content.startswith("$"):
-                    await support_server.create_text_channel(name=str(member.id), category=support_category)
+                    await support_server.create_text_channel(name=f"ticket-{member.id}", category=support_category)
                     embed = discord.Embed(title="Ticket Opened",
                                           description="Support will be with you shortly. Please explain your issue and include all relevant information.",
                                           color=0x479a66)
                     await message.author.send(embed=embed)
 
-                    user_support = discord.utils.get(support_server.text_channels, name=str(user.id))
+                    user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
