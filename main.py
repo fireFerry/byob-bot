@@ -223,11 +223,12 @@ async def on_message(message):
 
         for channel in support_server.text_channels:
             await asyncio.sleep(0)
-            channel_name = channel.name.split("-")[1]
-            if channel_name == str(member.id):
-                match = True
-                user_support = discord.utils.get(support_server.text_channels, name=str(member.id))
-                break
+            if channel.name.startswith("ticket-"):
+                channel_name = channel.name.split("-")[1]
+                if channel_name == str(member.id):
+                    match = True
+                    user_support = discord.utils.get(support_server.text_channels, name=str(member.id))
+                    break
 
         if not match:
 
