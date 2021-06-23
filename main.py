@@ -254,7 +254,7 @@ async def on_message(message):
                                           color=0x479a66)
                     await message.author.send(embed=embed)
                     user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
-                    embed = discord.Embed(title=f"Ticket Opened by {message.author.name}{message.author.discriminator}",
+                    embed = discord.Embed(title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
                                           description=f"This ticket has been opened by {message.author.mention}",
                                           color=0x5cffb0)
                     welcome_message = await user_support.send(embed=embed)
@@ -893,7 +893,7 @@ async def close(ctx):
                                            filename=f"transcript-{ctx.channel.name}.html")
             transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
             embed = discord.Embed(color=0x5cffb0)
-            embed.set_author(name=f"{send_member.name}{send_member.discriminator}",
+            embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
                              icon_url=f"{send_member.avatar_url}")
             embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
             embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
