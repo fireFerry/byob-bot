@@ -890,7 +890,7 @@ async def close(ctx):
             embed2 = discord.Embed(color=0x5cffb0)
             embed2.set_author(name=f"{send_member.name}{send_member.discriminator}",
                               icon_url=f"{send_member.avatar_url}")
-            embed2.add_field(name="**Ticket ", value=f"{send_member.mention}", inline=True)
+            embed2.add_field(name="**Ticket**", value=f"{send_member.mention}", inline=True)
             embed2.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
             embed2.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
             await ctx.send(embed=embed)
