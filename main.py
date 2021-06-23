@@ -227,7 +227,7 @@ async def on_message(message):
                 channel_name = channel.name.split("-")[1]
                 if channel_name == str(member.id):
                     match = True
-                    user_support = discord.utils.get(support_server.text_channels, name=str(member.id))
+                    user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
                     break
 
         if not match:
@@ -250,7 +250,6 @@ async def on_message(message):
                                           description="Support will be with you shortly. Please explain your issue and include all relevant information.",
                                           color=0x479a66)
                     await message.author.send(embed=embed)
-
                     user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
         if message.content.startswith("$"):
             await bot.process_commands(message)
