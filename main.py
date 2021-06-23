@@ -221,16 +221,16 @@ async def on_message(message):
 
         for channel in support_server.text_channels:
             await asyncio.sleep(0)
-            if channel.name == member.id:
+            if channel.name == str(member.id):
                 match = True
-                user_support = discord.utils.get(support_server.text_channels, name=member.id)
+                user_support = discord.utils.get(support_server.text_channels, name=str(member.id))
                 break
 
         if not match:
 
             support_category_name = 'Active Tickets'
             support_category = discord.utils.get(support_server.categories, name=support_category_name)
-            user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
+            user_support = discord.utils.get(support_server.text_channels, name=str(member.id))
 
             if support_category is None:
                 support_category_permissions = {
@@ -241,13 +241,13 @@ async def on_message(message):
                 support_category = discord.utils.get(support_server.categories, name=support_category_name)
             if user_support is None:
                 if not message.content.startswith("$"):
-                    await support_server.create_text_channel(name=member.id, category=support_category)
+                    await support_server.create_text_channel(name=str(member.id), category=support_category)
                     embed = discord.Embed(title="Ticket Opened",
                                           description="Support will be with you shortly. Please explain your issue and include all relevant information.",
                                           color=0x479a66)
                     await message.author.send(embed=embed)
 
-                    user_support = discord.utils.get(support_server.text_channels, name=user.id())
+                    user_support = discord.utils.get(support_server.text_channels, name=str(user.id))
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
