@@ -4,6 +4,8 @@ import datetime
 import time
 import json
 import asyncio
+import chat_exporter
+import io
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
@@ -104,6 +106,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="byob | $help"))
     print(bot.user.name)
     print(bot.user.id)
+    chat_exporter.init_exporter(bot)
 
 
 # Give role on reaction
@@ -878,6 +881,13 @@ async def close(ctx):
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
+            transcript = await chat_exporter.export(ctx.channel)
+            if transcript is None:
+                return
+            transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                           filename=f"transcript-{ctx.channel.name}.html")
+            transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
+            transcript_channel.send(file=transcript_file)
             await asyncio.sleep(5)
             await ticket_channel.delete(reason="Ticket closed.")
 
