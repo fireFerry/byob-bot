@@ -221,32 +221,16 @@ async def on_message(message):
 
         for channel in support_server.text_channels:
             await asyncio.sleep(0)
-
-            if member.nick is not None:
-                if channel.name == member.nick.lower():
-                    match = True
-                    if member.nick is None:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
-                    else:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
-                    break
-            else:
-                if channel.name == member.name.lower():
-                    match = True
-                    if member.nick is None:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
-                    else:
-                        user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
-                    break
+            if channel.name == member.id:
+                match = True
+                user_support = discord.utils.get(support_server.text_channels, name=member.id)
+                break
 
         if not match:
 
             support_category_name = 'Active Tickets'
             support_category = discord.utils.get(support_server.categories, name=support_category_name)
-            if member.nick is None:
-                user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
-            else:
-                user_support = discord.utils.get(support_server.text_channels, name=member.nick.lower())
+            user_support = discord.utils.get(support_server.text_channels, name=member.name.lower())
 
             if support_category is None:
                 support_category_permissions = {
@@ -257,20 +241,13 @@ async def on_message(message):
                 support_category = discord.utils.get(support_server.categories, name=support_category_name)
             if user_support is None:
                 if not message.content.startswith("$"):
-                    if member.nick is None:
-                        await support_server.create_text_channel(name=member.name, category=support_category)
-                        embed = discord.Embed(title="Ticket Opened",
-                                              description="Support will be with you shortly. Please explain your issue and include all relevant information.",
-                                              color=0x479a66)
-                        await message.author.send(embed=embed)
-                    else:
-                        await support_server.create_text_channel(name=member.nick, category=support_category)
-                        embed = discord.Embed(title="Ticket Opened",
-                                              description="Support will be with you shortly. Please explain your issue and include all relevant information.",
-                                              color=0x479a66)
-                        await message.author.send(embed=embed)
+                    await support_server.create_text_channel(name=member.id, category=support_category)
+                    embed = discord.Embed(title="Ticket Opened",
+                                          description="Support will be with you shortly. Please explain your issue and include all relevant information.",
+                                          color=0x479a66)
+                    await message.author.send(embed=embed)
 
-                    user_support = discord.utils.get(support_server.text_channels, name=user.name.lower())
+                    user_support = discord.utils.get(support_server.text_channels, name=user.id())
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
