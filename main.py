@@ -887,7 +887,6 @@ async def close(ctx):
             transcript_file = discord.File(io.BytesIO(transcript.encode()),
                                            filename=f"transcript-{ctx.channel.name}.html")
             transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
-            await ctx.send(embed=embed)
             embed = discord.Embed(color=0x5cffb0)
             embed.set_author(name=f"{send_member.name}{send_member.discriminator}",
                              icon_url=f"{send_member.avatar_url}")
