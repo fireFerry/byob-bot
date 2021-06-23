@@ -254,6 +254,11 @@ async def on_message(message):
                                           color=0x479a66)
                     await message.author.send(embed=embed)
                     user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
+                    embed = discord.Embed(title=f"Ticket Opened by {message.author.name}{message.author.discriminator}",
+                                          description=f"This ticket has been opened by {message.author.mention}",
+                                          color=0x5cffb0)
+                    welcome_message = await user_support.send(embed=embed)
+                    await welcome_message.pin()
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
@@ -890,7 +895,7 @@ async def close(ctx):
             embed = discord.Embed(color=0x5cffb0)
             embed.set_author(name=f"{send_member.name}{send_member.discriminator}",
                              icon_url=f"{send_member.avatar_url}")
-            embed.add_field(name="**Ticket**", value=f"{send_member.mention}", inline=True)
+            embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
             embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
             embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
             await transcript_channel.send(embed=embed, file=transcript_file)
