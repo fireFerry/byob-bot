@@ -13,8 +13,9 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+guild_id = os.getenv('GUILD_ID')
+guild_id = int(guild_id)
 byob_bot_version = '2.0'
-guild_id = 817532239783919637
 intents = discord.Intents.default()
 intents.members = True
 
