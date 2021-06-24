@@ -4,6 +4,8 @@ import datetime
 import time
 import json
 import asyncio
+import chat_exporter
+import io
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
@@ -11,7 +13,9 @@ from datetime import timedelta, datetime
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-byob_bot_version = '1.2.9'
+guild_id = os.getenv('GUILD_ID')
+guild_id = int(guild_id)
+byob_bot_version = '2.0'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -20,9 +24,12 @@ intents.members = True
 
 
 def get_prefix(_, message):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-    return prefixes[str(message.guild.id)]
+    if message.guild is None:
+        return "$"
+    else:
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+        return prefixes[str(message.guild.id)]
 
 
 # Gets the on/off status for auto-role
@@ -94,10 +101,13 @@ async def on_guild_remove(guild):
 
 @bot.event
 async def on_ready():
+    global launch_time
+    launch_time = datetime.utcnow()
     await bot.change_presence(status=discord.Status.online)
     await bot.change_presence(activity=discord.Game(name="byob | $help"))
     print(bot.user.name)
     print(bot.user.id)
+    chat_exporter.init_exporter(bot)
 
 
 # Give role on reaction
@@ -192,15 +202,74 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if bot.user.mentioned_in(message):
-        with open('prefixes.json', 'r') as f:
-            prefixes = json.load(f)
-        currentprefix = prefixes[f"{message.guild.id}"]
-        embed = discord.Embed(title="Mentioned!",
-                              description=f"My prefix in this server: **{currentprefix}**\nHelp command: **{currentprefix}help**",
-                              color=0x5cffb0)
-        await message.channel.send(embed=embed)
-    await bot.process_commands(message)
+    if hasattr(message.channel, 'category'):
+        if str(message.channel.category) == "Active Tickets" and message.author != bot.user:
+            ctx = await bot.get_context(message)
+            user_id = message.channel.name
+            user_id = user_id.split("-")[1]
+            send_member = await commands.MemberConverter().convert(ctx, user_id)
+            dm_channel = await send_member.create_dm()
+            if str(message.attachments) != "[]":
+                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                await dm_channel.send(content=message.content, file=sent_attachment)
+            else:
+                with open('prefixes.json', 'r') as f:
+                    prefixes = json.load(f)
+                currentprefix = prefixes[f"{ctx.guild.id}"]
+                if message.content != f"{currentprefix}close":
+                    await dm_channel.send(message.content)
+    if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
+        user = message.author
+        support_server = bot.get_guild(guild_id)
+        member = await support_server.fetch_member(user.id)
+
+        match = False
+
+        for channel in support_server.text_channels:
+            await asyncio.sleep(0)
+            if channel.name.startswith("ticket-"):
+                channel_name = channel.name.split("-")[1]
+                if channel_name == str(member.id):
+                    match = True
+                    user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
+                    break
+
+        if not match:
+
+            support_category_name = 'Active Tickets'
+            support_category = discord.utils.get(support_server.categories, name=support_category_name)
+            user_support = discord.utils.get(support_server.text_channels, name=str(member.id))
+
+            if support_category is None:
+                support_category_permissions = {
+                    support_server.default_role: discord.PermissionOverwrite(send_messages=False)
+                }
+                await support_server.create_category(name=support_category_name,
+                                                     overwrites=support_category_permissions)
+                support_category = discord.utils.get(support_server.categories, name=support_category_name)
+            if user_support is None:
+                if not message.content.startswith("$"):
+                    await support_server.create_text_channel(name=f"ticket-{member.id}", category=support_category)
+                    embed = discord.Embed(title="Ticket Opened",
+                                          description="Support will be with you shortly. Please explain your issue and include all relevant information.",
+                                          color=0x479a66)
+                    await message.author.send(embed=embed)
+                    user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
+                    embed = discord.Embed(title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
+                                          description=f"This ticket has been opened by {message.author.mention}",
+                                          color=0x5cffb0)
+                    welcome_message = await user_support.send(embed=embed)
+                    await welcome_message.pin()
+        if message.content.startswith("$"):
+            await bot.process_commands(message)
+        else:
+            if str(message.attachments) != "[]":
+                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                await user_support.send(content=message.content, file=sent_attachment)
+            else:
+                await user_support.send(message.content)
+    else:
+        await bot.process_commands(message)
 
 
 # Change member count on join
@@ -238,10 +307,16 @@ async def on_member_remove(member):
 
 @bot.command(aliases=['version'])
 async def status(ctx):
+    delta_uptime = datetime.utcnow() - launch_time
+    hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    days, hours = divmod(hours, 24)
+    uptime = str(f"{days}:{hours}:{minutes}:{seconds}")
     embed = discord.Embed(title="Status",
-                          description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms",
+                          description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms\n **Uptime**: {uptime}",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -255,10 +330,11 @@ async def help(ctx):
                      "Support commands:",
                      "Staff commands:",
                      "Developer commands:"]
-    contents_value = ["**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole EH/CE/PC/NO:** Command to join one of the joinable roles by command.\n**$leaverole EH/CE/PC/NO:** Command to leave one of the joinable roles by command.",
-                      "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
-                      "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:** Command to setup the reaction role system.",
-                      "**$shutdown:** Shutdown the bot completely.\n**$dev_status:** Information for the developer."]
+    contents_value = [
+        "**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole EH/CE/PC/NO:** Command to join one of the joinable roles by command.\n**$leaverole EH/CE/PC/NO:** Command to leave one of the joinable roles by command.",
+        "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
+        "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:** Command to setup the reaction role system.",
+        "**$shutdown:** Shutdown the bot completely.\n**$dev_status:** Information for the developer."]
     helppages = 3
     cur_page = 0
     timecurrentlyutc = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S UTC")
@@ -314,7 +390,8 @@ async def help(ctx):
 async def ping(ctx):
     embed = discord.Embed(title="Ping", description=f"Pong! Responded with a time of {round(bot.latency * 1000)}ms",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -326,7 +403,8 @@ async def github(ctx):
     embed = discord.Embed(title="Github",
                           description="This bot is open-source. The link to the project can be found here: https://github.com/fireFerry/byob-bot",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -338,7 +416,8 @@ async def issues(ctx):
     embed = discord.Embed(title="Feature requests",
                           description="If you have any issues with the Byob Bot, or if you have a feature that you want added to the Byob Bot? Let me know! You can submit issues and feature requests here: https://github.com/fireFerry/byob-bot/issues/new/choose",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -350,7 +429,8 @@ async def bugs(ctx):
     embed = discord.Embed(title="Bugs",
                           description="Do you think that you've found a bug with Byob Bot? No problem! Submit bug reports here: https://github.com/fireFerry/byob-bot/issues/new/choose",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -438,19 +518,21 @@ async def support(ctx):
     embed = discord.Embed(title="Support",
                           description="**1.** Ask your question, don't ask to ask.\n**2.** Be patient for support. Don't mention staff, this will result in a punishment.\n**3.** Don't repeat your questions, and don't put them in multiple channels.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
 # port forwarding command
 
 
-@bot.command(aliases=['portforward', 'pfw', ''])
+@bot.command(aliases=['portforward', 'pfw'])
 async def portforwarding(ctx):
     embed = discord.Embed(title="Port forwarding",
                           description="Port forwarding is done on your router, and may be called port mapping, or virtual servers too. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to your machine that you're hosting byob on.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -462,7 +544,8 @@ async def requirements(ctx):
     embed = discord.Embed(title="Requirements", description="requirements for byob:", color=0x5cffb0)
     embed.add_field(name="OS", value="A Linux distribution", inline=False)
     embed.add_field(name="Software", value="**1.** Python 3 & pip\n**2.** Docker", inline=False)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -474,7 +557,8 @@ async def wsl(ctx):
     embed = discord.Embed(title="Windows Subsystem for Linux",
                           description="Using wsl for byob isn't supported. This means that you will receive no support if you try to use byob with wsl. Wsl is if you run a linux terminal on Windows, also known as the Ubuntu/Kali from the Microsoft store.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -486,7 +570,8 @@ async def vps(ctx):
     embed = discord.Embed(title="Virtual Private Server",
                           description="Byob is not recommended on a vps. If you are using a vps for byob you may need to do some extra configuration with your vps provider. You also need to be able to open ports if you want to use byob, staff will not help with this.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -498,7 +583,8 @@ async def executable(ctx):
     embed = discord.Embed(title="Executable generation",
                           description="If your executable doesn't generate correctly, here are some things you should check:\n**1.** Make sure you are using the latest version of byob and rebooted at least once.\n**2.** Run this command: sudo usermod -aG docker $USER && sudo chmod 666 /var/run/docker.sock, and reboot your system.\n**3.** If this still doesn't work, uninstall docker, and run startup.sh again, and reboot your system.\n**4.** If you tried all of this and it didn't help, you can try using pyinstaller to compile the python payload manually.",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -510,7 +596,8 @@ async def wiki(ctx):
     embed = discord.Embed(title="Wiki",
                           description="web-gui wiki: https://byob.dev/guide\ncli wiki: https://github.com/malwaredllc/byob/wiki\nGitHub: https://github.com/malwaredllc/byob/",
                           color=0x5cffb0)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
@@ -605,28 +692,32 @@ async def delrole(ctx, member: discord.Member, role):
         role_eh = discord.utils.get(ctx.guild.roles, name="Ethical Hacker")
         await member.remove_roles(role_eh)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role_eh.name} role from {member.mention}",
+        embed = discord.Embed(title="Role removed",
+                              description=f"Removed the {role_eh.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     elif roletxt == 'PC':
         role_pc = discord.utils.get(ctx.guild.roles, name="Python Coder")
         await member.remove_roles(role_pc)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role_pc.name} role from {member.mention}",
+        embed = discord.Embed(title="Role removed",
+                              description=f"Removed the {role_pc.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     elif roletxt == 'CE':
         role_ce = discord.utils.get(ctx.guild.roles, name="Cybersecurity Expert")
         await member.remove_roles(role_ce)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role_ce.name} role from {member.mention}",
+        embed = discord.Embed(title="Role removed",
+                              description=f"Removed the {role_ce.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     elif roletxt == 'NO':
         role_no = discord.utils.get(ctx.guild.roles, name="Notifications")
         await member.remove_roles(role_no)
         await ctx.message.delete()
-        embed = discord.Embed(title="Role removed", description=f"Removed the {role_no.name} role from {member.mention}",
+        embed = discord.Embed(title="Role removed",
+                              description=f"Removed the {role_no.name} role from {member.mention}",
                               color=0x5cffb0)
         await ctx.send(embed=embed)
     else:
@@ -728,7 +819,9 @@ async def reactionrole(ctx):
     chosen_channel = await bot.wait_for('message', check=check)
     if chosen_channel.content is not None:
 
-        embed = discord.Embed(title="Reaction Role Setup", description=f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.", color=0x60ffb0)
+        embed = discord.Embed(title="Reaction Role Setup",
+                              description=f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.",
+                              color=0x60ffb0)
         await ctx.send(embed=embed)
         channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
         embed = discord.Embed(title="**Roles**", description="React to this message to receive specific roles!",
@@ -774,6 +867,43 @@ async def reactionrole(ctx):
         await ctx.send(embed=embed)
 
 
+# close command
+
+
+@bot.command()
+@commands.has_role('Support Team')
+async def close(ctx):
+    if hasattr(ctx.message.channel, 'category'):
+        if str(ctx.channel.category) == "Active Tickets" and ctx.author != bot.user:
+            await ctx.message.delete()
+            ticket_channel = ctx.channel
+            user_id = ctx.channel.name.split("-")[1]
+            send_member = await commands.MemberConverter().convert(ctx, user_id)
+            dm_channel = await send_member.create_dm()
+            embed = discord.Embed(title="Ticket Closed",
+                                  description="The support agent has closed the ticket. Sending a new message will open up a new ticket, so only do so if you have more questions.",
+                                  color=0xc9cb65)
+            await dm_channel.send(embed=embed)
+            embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
+                                  color=0xaa5858)
+            await ticket_channel.send(embed=embed)
+            transcript = await chat_exporter.export(ctx.channel)
+            if transcript is None:
+                return
+            transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                           filename=f"transcript-{ctx.channel.name}.html")
+            transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
+            embed = discord.Embed(color=0x5cffb0)
+            embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
+                             icon_url=f"{send_member.avatar_url}")
+            embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
+            embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
+            embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
+            await transcript_channel.send(embed=embed, file=transcript_file)
+            await asyncio.sleep(5)
+            await ticket_channel.delete(reason="Ticket closed.")
+
+
 # DEVELOPER COMMANDS
 
 # shutdown command, only useable by the owner.
@@ -783,7 +913,8 @@ async def reactionrole(ctx):
 @commands.is_owner()
 async def shutdown(ctx):
     await bot.change_presence(status=discord.Status.invisible)
-    await ctx.message.delete()
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
     embed = discord.Embed(title="Shutdown", description=f"{bot.user.name} has been shut down.", color=0x5cffb0)
     await ctx.send(embed=embed)
     await bot.close()
@@ -803,7 +934,8 @@ async def dev_status(ctx):
         autoroles = json.load(f)
     autorolestatus = autoroles[f"{ctx.guild.id}"]
     embed = discord.Embed(title="Dev Status",
-                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}", color=0x5cffb0)
+                          description=f"**Status**: Running version {byob_bot_version}.\n**Ping**: {round(bot.latency * 1000)}ms\n**Prefix**: {currentprefix}\n**Autorole status**: {autorolestatus}",
+                          color=0x5cffb0)
     embed.add_field(name="**Server stats**",
                     value=f"**Name**: {ctx.guild.name}\n**Members**: {ctx.guild.member_count}\n**Description**: {ctx.guild.description}",
                     inline=False)
