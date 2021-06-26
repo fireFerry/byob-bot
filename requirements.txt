@@ -2,3 +2,4 @@ discord.py
 python-dotenv
 discord
 chat-exporter
+discord-py-slash-command
