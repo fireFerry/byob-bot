@@ -251,7 +251,7 @@ async def on_message(message):
                 if not message.content.startswith("$"):
                     await support_server.create_text_channel(name=f"ticket-{member.id}", category=support_category)
                     embed = discord.Embed(title="Ticket Opened",
-                                          description="Support will be with you shortly. Please explain your issue and include all relevant information.",
+                                          description="A staff member will be with you shortly. Please explain your issue and include all relevant information.",
                                           color=0x479a66)
                     await message.author.send(embed=embed)
                     user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
@@ -401,7 +401,7 @@ async def ping(ctx):
 @bot.command()
 async def github(ctx):
     embed = discord.Embed(title="Github",
-                          description="This bot is open-source. The link to the project can be found here: https://github.com/fireFerry/byob-bot",
+                          description="This bot is open-source. The project's source code can be found here: https://github.com/fireFerry/byob-bot",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -414,7 +414,7 @@ async def github(ctx):
 @bot.command()
 async def issues(ctx):
     embed = discord.Embed(title="Feature requests",
-                          description="If you have any issues with the Byob Bot, or if you have a feature that you want added to the Byob Bot? Let me know! You can submit issues and feature requests here: https://github.com/fireFerry/byob-bot/issues/new/choose",
+                          description="If you have any issues with the Byob Bot or suggestions for new features, let us know! You can submit issues and feature requests here: https://github.com/fireFerry/byob-bot/issues/new/choose",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -516,7 +516,7 @@ async def leaverole(ctx, role):
 @bot.command()
 async def support(ctx):
     embed = discord.Embed(title="Support",
-                          description="**1.** Ask your question, don't ask to ask.\n**2.** Be patient for support. Don't mention staff, this will result in a punishment.\n**3.** Don't repeat your questions, and don't put them in multiple channels.",
+                          description="**1.** Ask your question, don't ask to ask.\n**2.** Be patient for support. Don't mention staff, this will result in a warning.\n**3.** Don't repeat your questions, and don't put them in multiple channels.",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -529,7 +529,7 @@ async def support(ctx):
 @bot.command(aliases=['portforward', 'pfw'])
 async def portforwarding(ctx):
     embed = discord.Embed(title="Port forwarding",
-                          description="Port forwarding is done on your router, and may be called port mapping, or virtual servers too. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to your machine that you're hosting byob on.",
+                          description="Port forwarding is done on your router, and may also be called port mapping or virtual servers. Port triggering is not the same as port forwarding. \nTo use the web-gui version of byob you need to forward ports 1337-1339 to the machine that you're hosting byob on.",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -555,7 +555,7 @@ async def requirements(ctx):
 @bot.command()
 async def wsl(ctx):
     embed = discord.Embed(title="Windows Subsystem for Linux",
-                          description="Using wsl for byob isn't supported. This means that you will receive no support if you try to use byob with wsl. Wsl is if you run a linux terminal on Windows, also known as the Ubuntu/Kali from the Microsoft store.",
+                          description="Using wsl for byob isn't supported. This means that you will receive no support if you run into issues while using byob on wsl. Wsl runs a linux terminal on Windows, can be found as Ubuntu/Kali on the Microsoft store.",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -568,7 +568,7 @@ async def wsl(ctx):
 @bot.command()
 async def vps(ctx):
     embed = discord.Embed(title="Virtual Private Server",
-                          description="Byob is not recommended on a vps. If you are using a vps for byob you may need to do some extra configuration with your vps provider. You also need to be able to open ports if you want to use byob, staff will not help with this.",
+                          description="Byob is not recommended on a vps. Byob may require extra configuration to allow for successful connections. You also need to be able to open ports if you want to use byob, staff will not help with this.",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -581,7 +581,7 @@ async def vps(ctx):
 @bot.command(aliases=['exe'])
 async def executable(ctx):
     embed = discord.Embed(title="Executable generation",
-                          description="If your executable doesn't generate correctly, here are some things you should check:\n**1.** Make sure you are using the latest version of byob and rebooted at least once.\n**2.** Run this command: sudo usermod -aG docker $USER && sudo chmod 666 /var/run/docker.sock, and reboot your system.\n**3.** If this still doesn't work, uninstall docker, and run startup.sh again, and reboot your system.\n**4.** If you tried all of this and it didn't help, you can try using pyinstaller to compile the python payload manually.",
+                          description="If your executable doesn't generate correctly, here are some things you should check:\n**1.** Make sure you are using the latest version of byob and have rebooted at least once after installation.\n**2.** Run this command: sudo usermod -aG docker $USER && sudo chmod 666 /var/run/docker.sock, and reboot your system.\n**3.** If this still doesn't work, uninstall docker, run startup.sh again, and reboot your system.\n**4.** If none of the previous steps fixed the issue, a python payload can be manually compiled using pyinstaller.",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -881,7 +881,7 @@ async def close(ctx):
             send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
             embed = discord.Embed(title="Ticket Closed",
-                                  description="The support agent has closed the ticket. Sending a new message will open up a new ticket, so only do so if you have more questions.",
+                                  description="A staff members has closed your ticket. Sending a new message will create a new ticket, please only do so if you have more questions.",
                                   color=0xc9cb65)
             await dm_channel.send(embed=embed)
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
