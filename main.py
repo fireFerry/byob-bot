@@ -555,7 +555,7 @@ async def requirements(ctx):
 @bot.command()
 async def wsl(ctx):
     embed = discord.Embed(title="Windows Subsystem for Linux",
-                          description="Using wsl for byob isn't supported. This means that you will receive no support if you run into issues while using byob on wsl. Wsl runs a linux terminal on Windows, can be found as Ubuntu/Kali on the Microsoft store.",
+                          description="Using wsl for byob isn't supported. This means that you will receive no support if you run into issues while using byob on wsl. Wsl runs a linux terminal on Windows, and can be found as Ubuntu/Kali on the Microsoft store.",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
