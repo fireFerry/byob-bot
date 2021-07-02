@@ -881,7 +881,7 @@ async def close(ctx):
             send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
             embed = discord.Embed(title="Ticket Closed",
-                                  description="A staff members has closed your ticket. Sending a new message will create a new ticket, please only do so if you have more questions.",
+                                  description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
                                   color=0xc9cb65)
             await dm_channel.send(embed=embed)
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
