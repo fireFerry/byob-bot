@@ -10,7 +10,6 @@ from discord.ext import commands
 from discord.ext.commands import CommandNotFound
 from dotenv import load_dotenv
 from datetime import timedelta, datetime
-from discord_slash import SlashCommand
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -44,7 +43,6 @@ def get_autorole(_, message):
 
 bot = commands.Bot(command_prefix=get_prefix, help_command=None, intents=intents)
 
-slash = SlashCommand(bot, sync_commands=True)
 
 # Loads the prefix into the json list
 
