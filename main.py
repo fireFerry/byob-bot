@@ -450,7 +450,7 @@ async def github(ctx):
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, components=[Button(label="Source code", style=5, url="https://github.com/fireFerry/byob-bot")])
 
 
 # issues command
@@ -463,7 +463,7 @@ async def issues(ctx):
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, components=[Button(label="Submit feature request", style=5, url="https://github.com/fireFerry/byob-bot/issues/new/choose")])
 
 
 # bugs command
@@ -476,7 +476,7 @@ async def bugs(ctx):
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, components=[Button(label="Submit bug report", style=5, url="https://github.com/fireFerry/byob-bot/issues/new/choose")])
 
 
 # joinrole command
@@ -639,11 +639,14 @@ async def executable(ctx):
 @bot.command()
 async def wiki(ctx):
     embed = discord.Embed(title="Wiki",
-                          description="web-gui wiki: https://byob.dev/guide\ncli wiki: https://github.com/malwaredllc/byob/wiki\nGitHub: https://github.com/malwaredllc/byob/",
+                          description="web-gui wiki: https://byob.dev/guide\ncli wiki: https://github.com/malwaredllc/byob/wiki\nGitHub: https://github.com/malwaredllc/byob",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed,
+                   components=[[Button(label="web-gui wiki", style=5, url="https://byob.dev/guide"),
+                                Button(label="cli wiki", style=5, url="https://github.com/malwaredllc/byob/wiki"),
+                                Button(label="GitHub", style=5, url="https://github.com/malwaredllc/byob")]])
 
 
 # STAFF COMMANDS
