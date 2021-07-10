@@ -8,6 +8,7 @@ import chat_exporter
 import io
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
+from discord_components import DiscordComponents, Button  # , Select, SelectOption
 from dotenv import load_dotenv
 from datetime import timedelta, datetime
 
@@ -108,6 +109,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     chat_exporter.init_exporter(bot)
+    DiscordComponents(bot)
 
 
 # Give role on reaction
@@ -255,19 +257,55 @@ async def on_message(message):
                                           color=0x479a66)
                     await message.author.send(embed=embed)
                     user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
-                    embed = discord.Embed(title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
-                                          description=f"This ticket has been opened by {message.author.mention}",
-                                          color=0x5cffb0)
-                    welcome_message = await user_support.send(embed=embed)
+                    embed = discord.Embed(
+                        title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
+                        description=f"This ticket has been opened by {message.author.mention}",
+                        color=0x5cffb0)
+                    welcome_message = await user_support.send(embed=embed,
+                                                              components=[
+                                                                  Button(label="Close", style=4)
+                                                              ],
+                                                              )
                     await welcome_message.pin()
+                    while True:
+                        interaction = await bot.wait_for("button_click", check=lambda r: r.component.label.startswith("Close"))
+                        ticket_channel = interaction.channel
+                        user_id = ticket_channel.name.split("-")[1]
+                        send_member = await commands.MemberConverter().convert(ctx, user_id)
+                        dm_channel = await send_member.create_dm()
+                        embed = discord.Embed(title="Ticket Closed",
+                                              description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
+                                              color=0xc9cb65)
+                        await dm_channel.send(embed=embed)
+                        embed = discord.Embed(title="Ticket closed",
+                                              description="Ticket will be deleted in 5 seconds...",
+                                              color=0xaa5858)
+                        await ticket_channel.send(embed=embed)
+                        transcript = await chat_exporter.export(ctx.channel)
+                        if transcript is None:
+                            return
+                        transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                                       filename=f"transcript-{ctx.channel.name}.html")
+                        transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
+                        embed = discord.Embed(color=0x5cffb0)
+                        embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
+                                         icon_url=f"{send_member.avatar_url}")
+                        embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
+                        embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
+                        embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
+                        await transcript_channel.send(embed=embed, file=transcript_file)
+                        await asyncio.sleep(5)
+                        await ticket_channel.delete(reason="Ticket closed.")
+
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
-            if str(message.attachments) != "[]":
-                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                await user_support.send(content=message.content, file=sent_attachment)
-            else:
-                await user_support.send(message.content)
+            if message.guild.id == guild_id:
+                if str(message.attachments) != "[]":
+                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                    await user_support.send(content=message.content, file=sent_attachment)
+                else:
+                    await user_support.send(message.content)
     else:
         await bot.process_commands(message)
 
