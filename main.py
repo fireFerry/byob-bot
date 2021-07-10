@@ -268,37 +268,6 @@ async def on_message(message):
                                                               ],
                                                               )
                     await welcome_message.pin()
-                    while True:
-                        interaction = await bot.wait_for("button_click",
-                                                         check=lambda r: r.component.label.startswith("Close"))
-                        ticket_channel = interaction.channel
-                        user_id = ticket_channel.name.split("-")[1]
-                        ctx = await bot.get_context(interaction.message)
-                        send_member = await commands.MemberConverter().convert(ctx, user_id)
-                        dm_channel = await send_member.create_dm()
-                        embed = discord.Embed(title="Ticket Closed",
-                                              description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
-                                              color=0xc9cb65)
-                        await dm_channel.send(embed=embed)
-                        embed = discord.Embed(title="Ticket closed",
-                                              description="Ticket will be deleted in 5 seconds...",
-                                              color=0xaa5858)
-                        await ticket_channel.send(embed=embed)
-                        transcript = await chat_exporter.export(ctx.channel)
-                        if transcript is None:
-                            return
-                        transcript_file = discord.File(io.BytesIO(transcript.encode()),
-                                                       filename=f"transcript-{ctx.channel.name}.html")
-                        transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
-                        embed = discord.Embed(color=0x5cffb0)
-                        embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
-                                         icon_url=f"{send_member.avatar_url}")
-                        embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
-                        embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
-                        embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
-                        await transcript_channel.send(embed=embed, file=transcript_file)
-                        await asyncio.sleep(5)
-                        await ticket_channel.delete(reason="Ticket closed.")
 
         if message.content.startswith("$"):
             await bot.process_commands(message)
@@ -338,6 +307,42 @@ async def on_member_remove(member):
             await channel.edit(name=f"All Members: {member.guild.member_count}")
         if channel.name.startswith("Bots:"):
             await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
+
+
+# Close ticket when button is pressed
+
+
+@bot.event
+async def on_button_click(interaction):
+    if interaction.component.label.startswith("Close"):
+        ticket_channel = interaction.channel
+        user_id = ticket_channel.name.split("-")[1]
+        ctx = await bot.get_context(interaction.message)
+        send_member = await commands.MemberConverter().convert(ctx, user_id)
+        dm_channel = await send_member.create_dm()
+        embed = discord.Embed(title="Ticket Closed",
+                              description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
+                              color=0xc9cb65)
+        await dm_channel.send(embed=embed)
+        embed = discord.Embed(title="Ticket closed",
+                              description="Ticket will be deleted in 5 seconds...",
+                              color=0xaa5858)
+        await ticket_channel.send(embed=embed)
+        transcript = await chat_exporter.export(ctx.channel)
+        if transcript is None:
+            return
+        transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                       filename=f"transcript-{ctx.channel.name}.html")
+        transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
+        embed = discord.Embed(color=0x5cffb0)
+        embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
+                         icon_url=f"{send_member.avatar_url}")
+        embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
+        embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
+        embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
+        await transcript_channel.send(embed=embed, file=transcript_file)
+        await asyncio.sleep(5)
+        await ticket_channel.delete(reason="Ticket closed.")
 
 
 # GENERAL COMMANDS
