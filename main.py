@@ -211,15 +211,16 @@ async def on_message(message):
             user_id = user_id.split("-")[1]
             send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
-            if str(message.attachments) != "[]":
-                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                await dm_channel.send(content=message.content, file=sent_attachment)
-            else:
-                with open('prefixes.json', 'r') as f:
-                    prefixes = json.load(f)
-                currentprefix = prefixes[f"{ctx.guild.id}"]
-                if message.content != f"{currentprefix}close":
-                    await dm_channel.send(message.content)
+            if message.guild.id == guild_id:
+                if str(message.attachments) != "[]":
+                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                    await dm_channel.send(content=message.content, file=sent_attachment)
+                else:
+                    with open('prefixes.json', 'r') as f:
+                        prefixes = json.load(f)
+                    currentprefix = prefixes[f"{ctx.guild.id}"]
+                    if message.content != f"{currentprefix}close":
+                        await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         support_server = bot.get_guild(guild_id)
@@ -268,7 +269,8 @@ async def on_message(message):
                                                               )
                     await welcome_message.pin()
                     while True:
-                        interaction = await bot.wait_for("button_click", check=lambda r: r.component.label.startswith("Close"))
+                        interaction = await bot.wait_for("button_click",
+                                                         check=lambda r: r.component.label.startswith("Close"))
                         ticket_channel = interaction.channel
                         user_id = ticket_channel.name.split("-")[1]
                         send_member = await commands.MemberConverter().convert(ctx, user_id)
@@ -300,12 +302,11 @@ async def on_message(message):
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
-            if message.guild.id == guild_id:
-                if str(message.attachments) != "[]":
-                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                    await user_support.send(content=message.content, file=sent_attachment)
-                else:
-                    await user_support.send(message.content)
+            if str(message.attachments) != "[]":
+                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                await user_support.send(content=message.content, file=sent_attachment)
+            else:
+                await user_support.send(message.content)
     else:
         await bot.process_commands(message)
 
