@@ -358,7 +358,7 @@ async def status(ctx):
     days, hours = divmod(hours, 24)
     uptime = str(f"{days}:{hours}:{minutes}:{seconds}")
     embed = discord.Embed(title="Status",
-                          description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms\n **Uptime**: {uptime}",
+                          description=f"**Status**: :green_circle: Running\n**Version**: {byob_bot_version}\n**Ping**: {round(bot.latency * 1000)}ms\n**Uptime**: {uptime}",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
