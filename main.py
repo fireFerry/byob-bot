@@ -16,7 +16,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 guild_id = os.getenv('GUILD_ID')
 guild_id = int(guild_id)
-byob_bot_version = '2.0'
+byob_bot_version = '2.0.1'
 intents = discord.Intents.default()
 intents.members = True
 
