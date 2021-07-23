@@ -8,6 +8,7 @@ import chat_exporter
 import io
 from discord.ext import commands
 from discord.ext.commands import CommandNotFound
+from discord_components import DiscordComponents, Button  # , Select, SelectOption
 from dotenv import load_dotenv
 from datetime import timedelta, datetime
 
@@ -108,6 +109,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     chat_exporter.init_exporter(bot)
+    DiscordComponents(bot)
 
 
 # Give role on reaction
@@ -209,15 +211,16 @@ async def on_message(message):
             user_id = user_id.split("-")[1]
             send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
-            if str(message.attachments) != "[]":
-                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                await dm_channel.send(content=message.content, file=sent_attachment)
-            else:
-                with open('prefixes.json', 'r') as f:
-                    prefixes = json.load(f)
-                currentprefix = prefixes[f"{ctx.guild.id}"]
-                if message.content != f"{currentprefix}close":
-                    await dm_channel.send(message.content)
+            if message.guild.id == guild_id:
+                if str(message.attachments) != "[]":
+                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                    await dm_channel.send(content=message.content, file=sent_attachment)
+                else:
+                    with open('prefixes.json', 'r') as f:
+                        prefixes = json.load(f)
+                    currentprefix = prefixes[f"{ctx.guild.id}"]
+                    if message.content != f"{currentprefix}close":
+                        await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         support_server = bot.get_guild(guild_id)
@@ -255,11 +258,17 @@ async def on_message(message):
                                           color=0x479a66)
                     await message.author.send(embed=embed)
                     user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
-                    embed = discord.Embed(title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
-                                          description=f"This ticket has been opened by {message.author.mention}",
-                                          color=0x5cffb0)
-                    welcome_message = await user_support.send(embed=embed)
+                    embed = discord.Embed(
+                        title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
+                        description=f"This ticket has been opened by {message.author.mention}",
+                        color=0x5cffb0)
+                    welcome_message = await user_support.send(embed=embed,
+                                                              components=[
+                                                                  Button(label="Close", style=4)
+                                                              ],
+                                                              )
                     await welcome_message.pin()
+
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
@@ -300,6 +309,42 @@ async def on_member_remove(member):
             await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
 
 
+# Close ticket when button is pressed
+
+
+@bot.event
+async def on_button_click(interaction):
+    if interaction.component.label.startswith("Close"):
+        ticket_channel = interaction.channel
+        user_id = ticket_channel.name.split("-")[1]
+        ctx = await bot.get_context(interaction.message)
+        send_member = await commands.MemberConverter().convert(ctx, user_id)
+        dm_channel = await send_member.create_dm()
+        embed = discord.Embed(title="Ticket Closed",
+                              description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
+                              color=0xc9cb65)
+        await dm_channel.send(embed=embed)
+        embed = discord.Embed(title="Ticket closed",
+                              description="Ticket will be deleted in 5 seconds...",
+                              color=0xaa5858)
+        await ticket_channel.send(embed=embed)
+        transcript = await chat_exporter.export(ctx.channel)
+        if transcript is None:
+            return
+        transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                       filename=f"transcript-{ctx.channel.name}.html")
+        transcript_channel = discord.utils.get(ctx.guild.text_channels, name="ticket-transcripts")
+        embed = discord.Embed(color=0x5cffb0)
+        embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
+                         icon_url=f"{send_member.avatar_url}")
+        embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
+        embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
+        embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
+        await transcript_channel.send(embed=embed, file=transcript_file)
+        await asyncio.sleep(5)
+        await ticket_channel.delete(reason="Ticket closed.")
+
+
 # GENERAL COMMANDS
 
 # status command to display the status of the bot
@@ -313,7 +358,7 @@ async def status(ctx):
     days, hours = divmod(hours, 24)
     uptime = str(f"{days}:{hours}:{minutes}:{seconds}")
     embed = discord.Embed(title="Status",
-                          description=f"**Status**: :green_circle: Running\n **Version**: {byob_bot_version}\n **Ping**: {round(bot.latency * 1000)}ms\n **Uptime**: {uptime}",
+                          description=f"**Status**: :green_circle: Running\n**Version**: {byob_bot_version}\n**Ping**: {round(bot.latency * 1000)}ms\n**Uptime**: {uptime}",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
@@ -405,7 +450,7 @@ async def github(ctx):
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, components=[Button(label="Source code", style=5, url="https://github.com/fireFerry/byob-bot")])
 
 
 # issues command
@@ -418,7 +463,7 @@ async def issues(ctx):
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, components=[Button(label="Submit feature request", style=5, url="https://github.com/fireFerry/byob-bot/issues/new/choose")])
 
 
 # bugs command
@@ -431,7 +476,7 @@ async def bugs(ctx):
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, components=[Button(label="Submit bug report", style=5, url="https://github.com/fireFerry/byob-bot/issues/new/choose")])
 
 
 # joinrole command
@@ -594,11 +639,14 @@ async def executable(ctx):
 @bot.command()
 async def wiki(ctx):
     embed = discord.Embed(title="Wiki",
-                          description="web-gui wiki: https://byob.dev/guide\ncli wiki: https://github.com/malwaredllc/byob/wiki\nGitHub: https://github.com/malwaredllc/byob/",
+                          description="web-gui wiki: https://byob.dev/guide\ncli wiki: https://github.com/malwaredllc/byob/wiki\nGitHub: https://github.com/malwaredllc/byob",
                           color=0x5cffb0)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed,
+                   components=[[Button(label="web-gui wiki", style=5, url="https://byob.dev/guide"),
+                                Button(label="cli wiki", style=5, url="https://github.com/malwaredllc/byob/wiki"),
+                                Button(label="GitHub", style=5, url="https://github.com/malwaredllc/byob")]])
 
 
 # STAFF COMMANDS
