@@ -343,6 +343,7 @@ async def on_button_click(interaction):
         user_id = ticket_channel.name.split("-")[1]
         ctx = await bot.get_context(interaction.message)
         send_guild = bot.get_guild(guild_id)
+        await interaction.respond(type=6)
         if await send_guild.fetch_member(user_id) is not None:
             send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
