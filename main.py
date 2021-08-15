@@ -16,7 +16,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 guild_id = os.getenv('GUILD_ID')
 guild_id = int(guild_id)
-byob_bot_version = '2.0.1'
+byob_bot_version = '2.0.2'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -210,8 +210,6 @@ async def on_message(message):
             user_id = message.channel.name
             user_id = user_id.split("-")[1]
             send_guild = bot.get_guild(guild_id)
-            print(await send_guild.fetch_member(user_id))
-            print(send_guild.get_member(user_id))
             if await send_guild.fetch_member(user_id) is not None:
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
             else:
