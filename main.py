@@ -213,8 +213,8 @@ async def on_message(message):
             print("1")
             print(guild_id)
             print(send_guild)
-            print(send_guild.get_member(user_id))
-            if send_guild.get_member(user_id) is not None:
+            print(send_guild.fetch_member(user_id))
+            if send_guild.fetch_member(user_id) is not None:
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
             else:
                 send_member = await commands.UserConverter().convert(ctx, user_id)
