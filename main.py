@@ -210,11 +210,9 @@ async def on_message(message):
             user_id = message.channel.name
             user_id = user_id.split("-")[1]
             send_guild = bot.get_guild(guild_id)
-            print("1")
-            print(guild_id)
-            print(send_guild)
-            print(send_guild.fetch_member(user_id))
-            if send_guild.fetch_member(user_id) is not None:
+            print(await send_guild.fetch_member(user_id))
+            print(send_guild.get_member(user_id))
+            if await send_guild.fetch_member(user_id) is not None:
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
             else:
                 send_member = await commands.UserConverter().convert(ctx, user_id)
@@ -347,7 +345,7 @@ async def on_button_click(interaction):
         user_id = ticket_channel.name.split("-")[1]
         ctx = await bot.get_context(interaction.message)
         send_guild = bot.get_guild(guild_id)
-        if send_guild.get_member(user_id) is not None:
+        if await send_guild.fetch_member(user_id) is not None:
             send_member = await commands.MemberConverter().convert(ctx, user_id)
             dm_channel = await send_member.create_dm()
             embed = discord.Embed(title="Ticket Closed",
@@ -960,7 +958,7 @@ async def close(ctx):
             ticket_channel = ctx.channel
             user_id = ctx.channel.name.split("-")[1]
             send_guild = bot.get_guild(guild_id)
-            if send_guild.get_member(user_id) is not None:
+            if await send_guild.fetch_member(user_id) is not None:
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
                 dm_channel = await send_member.create_dm()
                 embed = discord.Embed(title="Ticket Closed",
