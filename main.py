@@ -210,11 +210,14 @@ async def on_message(message):
             user_id = message.channel.name
             user_id = user_id.split("-")[1]
             send_guild = bot.get_guild(guild_id)
+            print("1")
+            print(send_guild.get_member(user_id).name)
+            print(send_guild.get_member(user_id))
             if send_guild.get_member(user_id) is not None:
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
             else:
                 send_member = await commands.UserConverter().convert(ctx, user_id)
-                embed = discord.Embed(title="Ticket closed because user left the server", description="Ticket will be deleted in 5 seconds...",
+                embed = discord.Embed(title="Ticket closed because user left the server.", description="Ticket will be deleted in 5 seconds...",
                                       color=0xaa5858)
                 await message.channel.send(embed=embed)
                 transcript = await chat_exporter.export(message.channel)
