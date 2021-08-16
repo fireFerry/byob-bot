@@ -363,8 +363,8 @@ async def on_button_click(interaction):
                                       description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
                                       color=0xc9cb65)
                 await dm_channel.send(embed=embed)
-            else:
-                send_member = await commands.UserConverter().convert(ctx, user_id)
+        else:
+            send_member = await commands.UserConverter().convert(ctx, user_id)
 
         embed = discord.Embed(title="Ticket closed",
                               description="Ticket will be deleted in 5 seconds...",
