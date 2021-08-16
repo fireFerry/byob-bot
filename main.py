@@ -1,5 +1,4 @@
 import os
-import sys
 import discord.ext
 import datetime
 import time
@@ -1020,7 +1019,7 @@ async def reboot(ctx):
         await ctx.message.delete()
     embed = discord.Embed(title="Rebooting...", description=f"Reboot initiated.", color=0x5cffb0)
     await ctx.send(embed=embed)
-    os.execv(['bash update.sh'])
+    os.execv('bash update.sh', (' ',))
     embed = discord.Embed(title="Rebooted", description=f"{bot.user.name} has succesfully rebooted.", color=0x5cffb0)
     await ctx.send(embed=embed)
 
