@@ -16,7 +16,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 guild_id = os.getenv('GUILD_ID')
 guild_id = int(guild_id)
-byob_bot_version = '2.0.1'
+byob_bot_version = '2.0.2'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -204,23 +204,53 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if hasattr(message.channel, 'category'):
-        if str(message.channel.category) == "Active Tickets" and message.author != bot.user:
-            ctx = await bot.get_context(message)
-            user_id = message.channel.name
-            user_id = user_id.split("-")[1]
-            send_member = await commands.MemberConverter().convert(ctx, user_id)
-            dm_channel = await send_member.create_dm()
-            if message.guild.id == guild_id:
-                if str(message.attachments) != "[]":
-                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                    await dm_channel.send(content=message.content, file=sent_attachment)
-                else:
-                    with open('prefixes.json', 'r') as f:
-                        prefixes = json.load(f)
-                    currentprefix = prefixes[f"{ctx.guild.id}"]
-                    if message.content != f"{currentprefix}close":
-                        await dm_channel.send(message.content)
+    if hasattr(message.channel, 'category') and str(
+            message.channel.category) == "Active Tickets" and message.author != bot.user:
+        ctx = await bot.get_context(message)
+        user_id = message.channel.name
+        user_id = user_id.split("-")[1]
+        send_guild = bot.get_guild(guild_id)
+        try:
+            await send_guild.fetch_member(user_id)
+            fetchmember = 1
+        except discord.HTTPException:
+            fetchmember = 0
+        if fetchmember == 1:
+            if await send_guild.fetch_member(user_id) is not None:
+                send_member = await commands.MemberConverter().convert(ctx, user_id)
+        else:
+            send_member = await commands.UserConverter().convert(ctx, user_id)
+            embed = discord.Embed(title="Ticket closed because user left the server.", description="Ticket will be deleted in 5 seconds...",
+                                  color=0xaa5858)
+            await message.channel.send(embed=embed)
+            transcript = await chat_exporter.export(message.channel)
+            if transcript is None:
+                return
+            transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                           filename=f"transcript-{message.channel.name}.html")
+            transcript_channel = discord.utils.get(message.guild.text_channels, name="ticket-transcripts")
+            embed = discord.Embed(color=0x5cffb0)
+            embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
+                             icon_url=f"{send_member.avatar_url}")
+            embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
+            embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
+            embed.add_field(name="**Ticket Name**", value=f"{message.channel.name}", inline=True)
+            await transcript_channel.send(embed=embed, file=transcript_file)
+            await asyncio.sleep(5)
+            await message.channel.delete(reason="Ticket closed.")
+            return
+
+        dm_channel = await send_member.create_dm()
+        if message.guild.id == guild_id:
+            if str(message.attachments) != "[]":
+                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                await dm_channel.send(content=message.content, file=sent_attachment)
+            else:
+                with open('prefixes.json', 'r') as f:
+                    prefixes = json.load(f)
+                currentprefix = prefixes[f"{ctx.guild.id}"]
+                if message.content != f"{currentprefix}close":
+                    await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         support_server = bot.get_guild(guild_id)
@@ -318,12 +348,24 @@ async def on_button_click(interaction):
         ticket_channel = interaction.channel
         user_id = ticket_channel.name.split("-")[1]
         ctx = await bot.get_context(interaction.message)
-        send_member = await commands.MemberConverter().convert(ctx, user_id)
-        dm_channel = await send_member.create_dm()
-        embed = discord.Embed(title="Ticket Closed",
-                              description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
-                              color=0xc9cb65)
-        await dm_channel.send(embed=embed)
+        send_guild = bot.get_guild(guild_id)
+        await interaction.respond(type=6)
+        try:
+            await send_guild.fetch_member(user_id)
+            fetchmember = 1
+        except discord.HTTPException:
+            fetchmember = 0
+        if fetchmember == 1:
+            if await send_guild.fetch_member(user_id) is not None:
+                send_member = await commands.MemberConverter().convert(ctx, user_id)
+                dm_channel = await send_member.create_dm()
+                embed = discord.Embed(title="Ticket Closed",
+                                      description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
+                                      color=0xc9cb65)
+                await dm_channel.send(embed=embed)
+        else:
+            send_member = await commands.UserConverter().convert(ctx, user_id)
+
         embed = discord.Embed(title="Ticket closed",
                               description="Ticket will be deleted in 5 seconds...",
                               color=0xaa5858)
@@ -379,7 +421,7 @@ async def help(ctx):
         "**$status|$version:** Displays the status of the bot.\n**$help:** Displays the commands list of the bot.\n**$ping:** Displays the latency of the bot.\n**$github:** Displays the GitHub link for the bot.\n**$issues:** Displays information if you have an issue or a feature request.\n**$bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n**$joinrole EH/CE/PC/NO:** Command to join one of the joinable roles by command.\n**$leaverole EH/CE/PC/NO:** Command to leave one of the joinable roles by command.",
         "**$support:** Receiving help in the Discord.\n**$portforwarding|$portforward|$pfw:** Displays how to port forward.\n**$requirements|$req:** Displays the requirements needed for byob.\n**$wsl:** Displays information about using wsl for byob.\n**$vps:** Displays information about using byob on a vps.\n**$executable|$exe:** Displays information on what to do if executable payloads aren't generating.\n**$wiki:** Displays the wiki and GitHub links for BYOB",
         "**$addrole:** Add a role to a user.\n**$delrole:** Remove a role from a user.\n**$userinfo|$ui:** Display informatiom about a specific user.\n**$changeprefix:** Changes the prefix for the bot.\n**$toggleautorole:** Toggles wether the bot should give the Members role if member accepted membership screening.\n**$reactionrole:** Command to setup the reaction role system.",
-        "**$shutdown:** Shutdown the bot completely.\n**$dev_status:** Information for the developer."]
+        "**$shutdown:** Shutdown the bot completely.\n**$reboot:** Reboot the bot completely.\n**$dev_status:** Information for the developer."]
     helppages = 3
     cur_page = 0
     timecurrentlyutc = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S UTC")
@@ -926,12 +968,17 @@ async def close(ctx):
             await ctx.message.delete()
             ticket_channel = ctx.channel
             user_id = ctx.channel.name.split("-")[1]
-            send_member = await commands.MemberConverter().convert(ctx, user_id)
-            dm_channel = await send_member.create_dm()
-            embed = discord.Embed(title="Ticket Closed",
-                                  description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
-                                  color=0xc9cb65)
-            await dm_channel.send(embed=embed)
+            send_guild = bot.get_guild(guild_id)
+            if await send_guild.fetch_member(user_id) is not None:
+                send_member = await commands.MemberConverter().convert(ctx, user_id)
+                dm_channel = await send_member.create_dm()
+                embed = discord.Embed(title="Ticket Closed",
+                                      description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
+                                      color=0xc9cb65)
+                await dm_channel.send(embed=embed)
+            else:
+                send_member = await commands.UserConverter().convert(ctx, user_id)
+
             embed = discord.Embed(title="Ticket closed", description="Ticket will be deleted in 5 seconds...",
                                   color=0xaa5858)
             await ticket_channel.send(embed=embed)
@@ -967,6 +1014,18 @@ async def shutdown(ctx):
     await ctx.send(embed=embed)
     await bot.close()
     print(f'{bot.user.name} has been shut down.')
+
+
+# reboot command, only usable by the owner.
+@bot.command()
+@commands.is_owner()
+async def reboot(ctx):
+    await bot.change_presence(status=discord.Status.invisible)
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
+    embed = discord.Embed(title="Rebooting...", description="Reboot initiated.", color=0x5cffb0)
+    await ctx.send(embed=embed)
+    os.system('sh update.sh')
 
 
 # dev-status command, only usable by the owner.
