@@ -215,7 +215,7 @@ async def on_message(message):
             fetchmember = 1
         except discord.HTTPException:
             fetchmember = 0
-        if fetchmember is 1:
+        if fetchmember == 1:
             if await send_guild.fetch_member(user_id) is not None:
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
         else:
@@ -355,7 +355,7 @@ async def on_button_click(interaction):
             fetchmember = 1
         except discord.HTTPException:
             fetchmember = 0
-        if fetchmember is 1:
+        if fetchmember == 1:
             if await send_guild.fetch_member(user_id) is not None:
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
                 dm_channel = await send_member.create_dm()
@@ -1023,7 +1023,7 @@ async def reboot(ctx):
     await bot.change_presence(status=discord.Status.invisible)
     if not isinstance(ctx.channel, discord.channel.DMChannel):
         await ctx.message.delete()
-    embed = discord.Embed(title="Rebooting...", description=f"Reboot initiated.", color=0x5cffb0)
+    embed = discord.Embed(title="Rebooting...", description="Reboot initiated.", color=0x5cffb0)
     await ctx.send(embed=embed)
     os.system('sh update.sh')
 
