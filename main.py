@@ -204,47 +204,51 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if hasattr(message.channel, 'category'):
-        if str(message.channel.category) == "Active Tickets" and message.author != bot.user:
-            ctx = await bot.get_context(message)
-            user_id = message.channel.name
-            user_id = user_id.split("-")[1]
-            send_guild = bot.get_guild(guild_id)
-            if await send_guild.fetch_member(user_id) is not None:
-                send_member = await commands.MemberConverter().convert(ctx, user_id)
-            else:
-                send_member = await commands.UserConverter().convert(ctx, user_id)
-                embed = discord.Embed(title="Ticket closed because user left the server.", description="Ticket will be deleted in 5 seconds...",
-                                      color=0xaa5858)
-                await message.channel.send(embed=embed)
-                transcript = await chat_exporter.export(message.channel)
-                if transcript is None:
-                    return
-                transcript_file = discord.File(io.BytesIO(transcript.encode()),
-                                               filename=f"transcript-{message.channel.name}.html")
-                transcript_channel = discord.utils.get(message.guild.text_channels, name="ticket-transcripts")
-                embed = discord.Embed(color=0x5cffb0)
-                embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
-                                 icon_url=f"{send_member.avatar_url}")
-                embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
-                embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
-                embed.add_field(name="**Ticket Name**", value=f"{message.channel.name}", inline=True)
-                await transcript_channel.send(embed=embed, file=transcript_file)
-                await asyncio.sleep(5)
-                await message.channel.delete(reason="Ticket closed.")
+    if hasattr(message.channel, 'category') and str(
+            message.channel.category) == "Active Tickets" and message.author != bot.user:
+        ctx = await bot.get_context(message)
+        user_id = message.channel.name
+        user_id = user_id.split("-")[1]
+        send_guild = bot.get_guild(guild_id)
+        if await send_guild.fetch_member(user_id) is not None:
+            print(send_guild.fetch_member(user_id))
+            # try:
+            #     send_guild.fetch_member(user_id)
+            # except Exception:
+            send_member = await commands.MemberConverter().convert(ctx, user_id)
+        else:
+            send_member = await commands.UserConverter().convert(ctx, user_id)
+            embed = discord.Embed(title="Ticket closed because user left the server.", description="Ticket will be deleted in 5 seconds...",
+                                  color=0xaa5858)
+            await message.channel.send(embed=embed)
+            transcript = await chat_exporter.export(message.channel)
+            if transcript is None:
                 return
+            transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                           filename=f"transcript-{message.channel.name}.html")
+            transcript_channel = discord.utils.get(message.guild.text_channels, name="ticket-transcripts")
+            embed = discord.Embed(color=0x5cffb0)
+            embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
+                             icon_url=f"{send_member.avatar_url}")
+            embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
+            embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
+            embed.add_field(name="**Ticket Name**", value=f"{message.channel.name}", inline=True)
+            await transcript_channel.send(embed=embed, file=transcript_file)
+            await asyncio.sleep(5)
+            await message.channel.delete(reason="Ticket closed.")
+            return
 
-            dm_channel = await send_member.create_dm()
-            if message.guild.id == guild_id:
-                if str(message.attachments) != "[]":
-                    sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                    await dm_channel.send(content=message.content, file=sent_attachment)
-                else:
-                    with open('prefixes.json', 'r') as f:
-                        prefixes = json.load(f)
-                    currentprefix = prefixes[f"{ctx.guild.id}"]
-                    if message.content != f"{currentprefix}close":
-                        await dm_channel.send(message.content)
+        dm_channel = await send_member.create_dm()
+        if message.guild.id == guild_id:
+            if str(message.attachments) != "[]":
+                sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
+                await dm_channel.send(content=message.content, file=sent_attachment)
+            else:
+                with open('prefixes.json', 'r') as f:
+                    prefixes = json.load(f)
+                currentprefix = prefixes[f"{ctx.guild.id}"]
+                if message.content != f"{currentprefix}close":
+                    await dm_channel.send(message.content)
     if isinstance(message.channel, discord.channel.DMChannel) and message.author != bot.user:
         user = message.author
         support_server = bot.get_guild(guild_id)
