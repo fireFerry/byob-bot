@@ -212,15 +212,13 @@ async def on_message(message):
         user_id = user_id.split("-")[1]
         send_guild = bot.get_guild(guild_id)
         try:
-            print("test")
             await send_guild.fetch_member(user_id)
             fetchmember = 1
         except discord.HTTPException:
-            print("test2")
             fetchmember = 0
-        if await send_guild.fetch_member(user_id) is not None and fetchmember is 1:
-            print(send_guild.fetch_member(user_id))
-            send_member = await commands.MemberConverter().convert(ctx, user_id)
+        if fetchmember is 1:
+            if await send_guild.fetch_member(user_id) is not None:
+                send_member = await commands.MemberConverter().convert(ctx, user_id)
         else:
             send_member = await commands.UserConverter().convert(ctx, user_id)
             embed = discord.Embed(title="Ticket closed because user left the server.", description="Ticket will be deleted in 5 seconds...",
