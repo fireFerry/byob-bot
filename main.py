@@ -1,4 +1,5 @@
 import os
+import sys
 import discord.ext
 import datetime
 import time
@@ -1010,6 +1011,20 @@ async def shutdown(ctx):
     await ctx.send(embed=embed)
     await bot.close()
     print(f'{bot.user.name} has been shut down.')
+
+
+# reboot command, only usable by the owner.
+@bot.command()
+@commands.is_owner()
+async def reboot(ctx):
+    await bot.change_presence(status=discord.Status.invisible)
+    if not isinstance(ctx.channel, discord.channel.DMChannel):
+        await ctx.message.delete()
+    embed = discord.Embed(title="Rebooting...", description=f"Reboot initiated.", color=0x5cffb0)
+    await ctx.send(embed=embed)
+    os.execv(sys.executable, ['python3'] + sys.argv)
+    embed = discord.Embed(title="Rebooted", description=f"{bot.user.name} has succesfully rebooted.", color=0x5cffb0)
+    await ctx.send(embed=embed)
 
 
 # dev-status command, only usable by the owner.
