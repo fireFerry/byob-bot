@@ -211,9 +211,11 @@ async def on_message(message):
         user_id = user_id.split("-")[1]
         send_guild = bot.get_guild(guild_id)
         try:
+            print("test")
             await send_guild.fetch_member(user_id)
             fetchmember = 1
         except discord.HTTPException:
+            print("test2")
             fetchmember = 0
         if await send_guild.fetch_member(user_id) is not None and fetchmember is 1:
             print(send_guild.fetch_member(user_id))
