@@ -1019,8 +1019,10 @@ async def reboot(ctx):
         await ctx.message.delete()
     embed = discord.Embed(title="Rebooting...", description=f"Reboot initiated.", color=0x5cffb0)
     await ctx.send(embed=embed)
-    os.execv('pwd', (' ',))
-    os.execv('bash update.sh', (' ',))
+    cwd = os.getcwd()
+    print(cwd)
+
+    os.execv(f'bash {cwd}update.sh', (' ',))
     embed = discord.Embed(title="Rebooted", description=f"{bot.user.name} has succesfully rebooted.", color=0x5cffb0)
     await ctx.send(embed=embed)
 
