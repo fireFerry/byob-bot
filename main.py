@@ -350,15 +350,21 @@ async def on_button_click(interaction):
         ctx = await bot.get_context(interaction.message)
         send_guild = bot.get_guild(guild_id)
         await interaction.respond(type=6)
-        if await send_guild.fetch_member(user_id) is not None:
-            send_member = await commands.MemberConverter().convert(ctx, user_id)
-            dm_channel = await send_member.create_dm()
-            embed = discord.Embed(title="Ticket Closed",
-                                  description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
-                                  color=0xc9cb65)
-            await dm_channel.send(embed=embed)
-        else:
-            send_member = await commands.UserConverter().convert(ctx, user_id)
+        try:
+            await send_guild.fetch_member(user_id)
+            fetchmember = 1
+        except discord.HTTPException:
+            fetchmember = 0
+        if fetchmember is 1:
+            if await send_guild.fetch_member(user_id) is not None:
+                send_member = await commands.MemberConverter().convert(ctx, user_id)
+                dm_channel = await send_member.create_dm()
+                embed = discord.Embed(title="Ticket Closed",
+                                      description="A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have another issue.",
+                                      color=0xc9cb65)
+                await dm_channel.send(embed=embed)
+            else:
+                send_member = await commands.UserConverter().convert(ctx, user_id)
 
         embed = discord.Embed(title="Ticket closed",
                               description="Ticket will be deleted in 5 seconds...",
@@ -1020,8 +1026,6 @@ async def reboot(ctx):
     embed = discord.Embed(title="Rebooting...", description=f"Reboot initiated.", color=0x5cffb0)
     await ctx.send(embed=embed)
     os.system('sh update.sh')
-    embed = discord.Embed(title="Rebooted", description=f"{bot.user.name} has succesfully rebooted.", color=0x5cffb0)
-    await ctx.send(embed=embed)
 
 
 # dev-status command, only usable by the owner.
