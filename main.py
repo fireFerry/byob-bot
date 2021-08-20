@@ -16,7 +16,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 guild_id = os.getenv('GUILD_ID')
 guild_id = int(guild_id)
-byob_bot_version = '2.0.2'
+byob_bot_version = '2.0.3'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -204,8 +204,7 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if hasattr(message.channel, 'category') and str(
-            message.channel.category) == "Active Tickets" and message.author != bot.user:
+    if hasattr(message.channel, 'category') and str(message.channel.category) == "Active Tickets" and not message.author.bot:
         ctx = await bot.get_context(message)
         user_id = message.channel.name
         user_id = user_id.split("-")[1]
@@ -282,23 +281,30 @@ async def on_message(message):
                 support_category = discord.utils.get(support_server.categories, name=support_category_name)
             if user_support is None:
                 if not message.content.startswith("$"):
-                    await support_server.create_text_channel(name=f"ticket-{member.id}", category=support_category)
-                    embed = discord.Embed(title="Ticket Opened",
-                                          description="A staff member will be with you shortly. Please explain your issue and include all relevant information.",
-                                          color=0x479a66)
-                    await message.author.send(embed=embed)
-                    user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
-                    embed = discord.Embed(
-                        title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
-                        description=f"This ticket has been opened by {message.author.mention}",
-                        color=0x5cffb0)
-                    welcome_message = await user_support.send(embed=embed,
-                                                              components=[
-                                                                  Button(label="Close", style=4)
-                                                              ],
-                                                              )
-                    await welcome_message.pin()
-
+                    ticket_blacklist = discord.utils.get(support_server.roles, name="Ticket Blacklist")
+                    if ticket_blacklist in member.roles:
+                        embed = discord.Embed(title="Ticket Blacklist",
+                                              description="You've been put on the Ticket Blacklist, this means that you'll no longer be able to create any tickets. If you feel like this is a wrongful decision, please contact a staff member directly.",
+                                              color=0x5cffb0)
+                        await message.author.send(embed=embed)
+                        return
+                    else:
+                        await support_server.create_text_channel(name=f"ticket-{member.id}", category=support_category)
+                        embed = discord.Embed(title="Ticket Opened",
+                                              description="A staff member will be with you shortly. Please explain your issue and include all relevant information.",
+                                              color=0x479a66)
+                        await message.author.send(embed=embed)
+                        user_support = discord.utils.get(support_server.text_channels, name=f"ticket-{member.id}")
+                        embed = discord.Embed(
+                            title=f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
+                            description=f"This ticket has been opened by {message.author.mention}",
+                            color=0x5cffb0)
+                        welcome_message = await user_support.send(embed=embed,
+                                                                  components=[
+                                                                      Button(label="Close", style=4)
+                                                                  ],
+                                                                  )
+                        await welcome_message.pin()
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
@@ -1014,6 +1020,7 @@ async def shutdown(ctx):
     await ctx.send(embed=embed)
     await bot.close()
     print(f'{bot.user.name} has been shut down.')
+    exit()
 
 
 # reboot command, only usable by the owner.
