@@ -205,7 +205,6 @@ async def on_command_error(_, error):
 @bot.event
 async def on_message(message):
     if hasattr(message.channel, 'category') and str(message.channel.category) == "Active Tickets" and not message.author.bot:
-        print('yes')
         ctx = await bot.get_context(message)
         user_id = message.channel.name
         user_id = user_id.split("-")[1]
@@ -220,7 +219,6 @@ async def on_message(message):
                 send_member = await commands.MemberConverter().convert(ctx, user_id)
         else:
             send_member = await commands.UserConverter().convert(ctx, user_id)
-            print('yes')
             embed = discord.Embed(title="Ticket closed because user left the server.", description="Ticket will be deleted in 5 seconds...",
                                   color=0xaa5858)
             await message.channel.send(embed=embed)
