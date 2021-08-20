@@ -16,7 +16,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 guild_id = os.getenv('GUILD_ID')
 guild_id = int(guild_id)
-byob_bot_version = '2.0.3'
+byob_bot_version = '2.0.4'
 intents = discord.Intents.default()
 intents.members = True
 
@@ -204,7 +204,7 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if hasattr(message.channel, 'category') and str(message.channel.category) == "Active Tickets" and not message.author.bot:
+    if hasattr(message.channel, 'category') and str(message.channel.category) == "Active Tickets" and message.channel in bot.get_guild(guild_id).channels and not message.author.bot:
         ctx = await bot.get_context(message)
         user_id = message.channel.name
         user_id = user_id.split("-")[1]
