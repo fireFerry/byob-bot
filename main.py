@@ -1020,6 +1020,7 @@ async def shutdown(ctx):
     await ctx.send(embed=embed)
     await bot.close()
     print(f'{bot.user.name} has been shut down.')
+    exit()
 
 
 # reboot command, only usable by the owner.
