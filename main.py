@@ -287,6 +287,7 @@ async def on_message(message):
                                               description="You've been put on the Ticket Blacklist, this means that you'll no longer be able to create any tickets. If you feel like this is a wrongful decision, please contact a staff member directly.",
                                               color=0x5cffb0)
                         await message.author.send(embed=embed)
+                        return
                     else:
                         await support_server.create_text_channel(name=f"ticket-{member.id}", category=support_category)
                         embed = discord.Embed(title="Ticket Opened",
