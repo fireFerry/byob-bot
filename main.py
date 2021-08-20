@@ -204,8 +204,7 @@ async def on_command_error(_, error):
 
 @bot.event
 async def on_message(message):
-    if hasattr(message.channel, 'category') and str(
-            message.channel.category) == "Active Tickets" and message.author != bot.user:
+    if hasattr(message.channel, 'category') and str(message.channel.category) == "Active Tickets" and message.author != bot.user:
         ctx = await bot.get_context(message)
         user_id = message.channel.name
         user_id = user_id.split("-")[1]
@@ -305,7 +304,6 @@ async def on_message(message):
                                                                   ],
                                                                   )
                         await welcome_message.pin()
-
         if message.content.startswith("$"):
             await bot.process_commands(message)
         else:
