@@ -282,8 +282,10 @@ async def on_message(message):
                 support_category = discord.utils.get(support_server.categories, name=support_category_name)
             if user_support is None:
                 if not message.content.startswith("$"):
+                    ctx = await bot.get_context(message)
+                    send_member = await commands.MemberConverter().convert(ctx, message.author.id)
                     ticket_blacklist = discord.utils.get(support_server.roles, name="Ticket Blacklist")
-                    if ticket_blacklist in message.author.roles:
+                    if ticket_blacklist in send_member.roles:
                         embed = discord.Embed(title="Ticket Blacklist",
                                               description="You've been put on the Ticket Blacklist, this means that you'll no longer be able to create any tickets. If you feel like this is a wrongful decision, please contact a staff member directly.",
                                               color=0x5cffb0)
