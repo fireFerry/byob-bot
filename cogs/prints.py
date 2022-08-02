@@ -1,5 +1,9 @@
+import discord
 from datetime import datetime
 from discord.ext import commands
+
+from config import config
+
 launch_time = None
 
 
@@ -26,6 +30,7 @@ class Prints(commands.Cog):
     async def on_ready(self):
         global launch_time
         launch_time = datetime.utcnow()
+        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(name=f"byob | {config.prefix}help"))
         print('User:', self.bot.user)
         print('ID:', self.bot.user.id)
         print('bot ready')
