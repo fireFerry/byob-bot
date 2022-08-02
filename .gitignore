@@ -1,7 +1,7 @@
 .idea
 discord.log
 
-config/
+config
 
 nodemon.json
 
