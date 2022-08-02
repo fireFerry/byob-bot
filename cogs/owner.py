@@ -27,10 +27,9 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def reboot(self, ctx):
         await self.bot.change_presence(status=discord.Status.invisible)
-        if not isinstance(ctx.channel, discord.channel.DMChannel):
-            await ctx.message.delete()
-        embed = discord.Embed(title="Rebooting", description="Reboot initiated.", color=0x5cffb0)
-        await ctx.send(embed=embed)
+        await utils.send_embed("Rebooting",
+                               "Reboot initiated.",
+                               ctx,)
         print(f'{self.bot.user} is rebooting...')
         os.system('sh update.sh')
 
