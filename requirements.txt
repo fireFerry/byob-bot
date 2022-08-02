@@ -1,5 +1,2 @@
-discord.py
-python-dotenv
-discord
+git+https://github.com/Rapptz/discord.py
 chat-exporter
-discord-components

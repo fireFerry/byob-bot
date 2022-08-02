@@ -1,20 +1,19 @@
+from datetime import datetime
 from discord.ext import commands
-from config import config
+launch_time = None
+
 
 class Prints(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
-
     @commands.Cog.listener()
-    async def on_member_join(member):
+    async def on_member_join(self, member):
         print(f'{member} Joined the Guild')
 
     @commands.Cog.listener()
-    async def on_member_remove(member):
+    async def on_member_remove(self, member):
         print(f'{member}Left the Guild')
-
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -25,15 +24,12 @@ class Prints(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        if config.DEBUGGING == 1:
-            print('Debugging')
-        if config.DEBUGGING == 0:
-            print('production')
+        global launch_time
+        launch_time = datetime.utcnow()
         print('User:', self.bot.user)
         print('ID:', self.bot.user.id)
         print('bot ready')
 
 
-
-def setup(bot):
-    bot.add_cog(Prints(bot))
+async def setup(bot):
+    await bot.add_cog(Prints(bot))
