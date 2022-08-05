@@ -1,7 +1,6 @@
 from discord.ext import commands
 import discord
 import json
-import datetime
 import asyncio
 import chat_exporter
 import io
@@ -56,7 +55,7 @@ class Staff(commands.Cog):
         roles = [role.mention for role in member.roles]
         embed = await utils.create_embed(f"{member.name}{member.discriminator}",
                                          f"{member.mention}")
-        embed.set_image(url=member.avatar_url)
+        embed.set_image(url=member.avatar.url)
         embed.add_field(name="**Pending:**", value=f"{member.pending}", inline=True)
         embed.add_field(name='**Created account at:**', value=member.created_at.strftime(
             'Today at %-H:%M' if member.created_at.date() == datetime.today().date()
@@ -82,7 +81,7 @@ class Staff(commands.Cog):
                                    False)
         elif isinstance(error, commands.MemberNotFound):
             await utils.send_embed("Error",
-                                   f"User is not in this server.",
+                                   "User is not in this server.",
                                    ctx,
                                    False)
 
@@ -108,7 +107,7 @@ class Staff(commands.Cog):
             await ctx.send(embed=embed)
             channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
             embed = await utils.create_embed("**Roles**",
-                                             f"React to this message to receive specific roles!,"
+                                             "React to this message to receive specific roles!,"
                                              )
             embed.add_field(name="Cybersecurity Expert",
                             value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
@@ -146,12 +145,12 @@ class Staff(commands.Cog):
                 await ctx.send(embed=embed)
             else:
                 embed = await utils.create_embed("Error",
-                                                 "An error has occured. Please try again.",
+                                                 "An error has occurred. Please try again.",
                                                  )
                 await ctx.send(embed=embed)
         else:
             embed = await utils.create_embed("Error",
-                                             "An error has occured. Please try again.",
+                                             "An error has occurred. Please try again.",
                                              )
             await ctx.send(embed=embed)
 
