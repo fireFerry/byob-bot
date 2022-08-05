@@ -13,7 +13,7 @@ class CloseButton(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(label="Close", custom_id="close", style=discord.ButtonStyle.red)
-    async def close_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def close_button(self, interaction: discord.Interaction, button: discord.Button):
         ctx = await self.bot.get_context(interaction.message)
         send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name.split("-")[1])
         embed = await utils.create_embed("Ticket Closed",
@@ -76,6 +76,11 @@ class TicketSystem(commands.Cog):
                 return
             support_server = self.bot.get_guild(config.guild_id)
             member = await support_server.fetch_member(message.author.id)
+            if discord.utils.get(support_server.roles, name="Ticket Blacklist") in member.roles:
+                embed = await utils.create_embed("Ticket Blacklisted",
+                                                 "You are blacklisted from creating tickets. Please contact a staff member if you think this is in error.",)
+                await message.author.send(embed=embed)
+                return
             match = None
             for channel in support_server.text_channels:
                 if channel.name.startswith("ticket-") and channel.name.split("-")[1] == str(member.id):

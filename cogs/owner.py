@@ -51,7 +51,7 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reload_extension(self, ctx, extension):
+    async def reload(self, ctx, extension):
         await self.bot.reload_extension(f"cogs.{extension}")
         await utils.send_embed("Extension reloaded",
                                f"{extension} has been reloaded.",
@@ -59,7 +59,7 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def disable_extension(self, ctx, extension):
+    async def disable(self, ctx, extension):
         await self.bot.unload_extension(f'cogs.{extension}')
         await utils.send_embed("Extension Disabled",
                                f"{extension} has been disabled.",
@@ -67,7 +67,7 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def enable_extension(self, ctx, extension):
+    async def enable(self, ctx, extension):
         await self.bot.load_extension(f'cogs.{extension}')
         await utils.send_embed("Extension Enabled",
                                f"{extension} has been enabled.",

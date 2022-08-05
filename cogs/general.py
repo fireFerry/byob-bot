@@ -104,7 +104,7 @@ class General(commands.Cog):
         await message.add_reaction("\u25b6")
         await message.add_reaction("\u23f9")
 
-        async def check(reactiongiven, userreacting):
+        def check(reactiongiven, userreacting):
             return userreacting == ctx.author and str(reactiongiven.emoji) in ["\u25c0", "\u25b6", "\u23f9"]
 
         async def update_help(embed_message, helpmessage, current_page, help_pages):
