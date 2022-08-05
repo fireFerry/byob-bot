@@ -25,6 +25,7 @@ async def on_command_error(ctx, error):
         await utils.send_embed("Error",
                                "You do not have permission to do this.",
                                ctx,)
+        return
     raise error
 
 
