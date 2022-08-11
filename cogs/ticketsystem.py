@@ -1,7 +1,4 @@
 import discord
-import chat_exporter
-import asyncio
-import io
 from discord.ext import commands
 from config import config
 import cogs.utils as utils
@@ -15,35 +12,25 @@ class CloseButton(discord.ui.View):
     @discord.ui.button(label="Close", custom_id="close", style=discord.ButtonStyle.red)
     async def close_button(self, interaction: discord.Interaction, button: discord.Button):
         ctx = await self.bot.get_context(interaction.message)
-        send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name.split("-")[1])
-        embed = await utils.create_embed("Ticket Closed",
-                                         "A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have a new issue.",
-                                         )
-        if not send_member.dm_channel:
-            await send_member.create_dm()
-        await send_member.dm_channel.send(embed=embed)
-        embed = await utils.create_embed("Ticket Closed",
-                                         "Ticket will be deleted in 5 seconds...",
-                                         )
+        embed_dm = await utils.create_embed("Ticket Closed",
+                                            "A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have a new issue.")
+        if await utils.member_in_server(interaction.guild, ctx.channel.name.split("-")[1]):
+            send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name.split("-")[1])
+            embed = await utils.create_embed("Ticket Closed",
+                                             "Ticket will be deleted in 5 seconds...", )
+            embed_dm = False
+        else:
+            send_member = await commands.UserConverter().convert(ctx, ctx.channel.name.split("-")[1])
+            embed = await utils.create_embed("Ticket Closed",
+                                             "Ticket closed because user left the server.")
+        if embed_dm is discord.Embed:
+            if not send_member.dm_channel:
+                await send_member.create_dm()
+            await send_member.dm_channel.send(embed=embed_dm)
         button.label = "Closed"
         button.disabled = True
         await interaction.response.send_message(embed=embed, view=self)
-        transcript = await chat_exporter.export(ctx.channel, military_time=True)
-        if transcript is None:
-            return
-        transcript_file = discord.File(io.BytesIO(transcript.encode()),
-                                       filename=f"transcript-{ctx.channel.name}.html")
-        transcript_channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels,
-                                                                    name="ticket-transcripts")
-        embed = await utils.create_embed()
-        embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
-                         icon_url=f"{send_member.avatar.url}")
-        embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
-        embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
-        embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
-        await transcript_channel.send(embed=embed, file=transcript_file)
-        await asyncio.sleep(5)
-        await interaction.channel.delete(reason="Ticket closed.")
+        await utils.close_ticket(ctx, send_member)
         self.stop()
 
 
@@ -56,13 +43,19 @@ class TicketSystem(commands.Cog):
         self.bot.add_view(CloseButton(self.bot))
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return
         if hasattr(message.channel, 'category') and str(message.channel.category) == "Active Tickets":
             if message.guild.id != config.guild_id or message.content == f"{config.prefix}close":
                 return
-            send_member = await commands.MemberConverter().convert(await self.bot.get_context(message), message.channel.name.split("-")[1])
+            if not await utils.member_in_server(message.guild, int(message.channel.name.split("-")[1])):
+                send_member: discord.User = await commands.UserConverter().convert(await self.bot.get_context(message), message.channel.name.split("-")[1])
+                embed = await utils.create_embed("Ticket Closed", "Ticket closed because user left the server.")
+                await message.channel.send(embed=embed)
+                await utils.close_ticket(await self.bot.get_context(message), send_member)
+                return
+            send_member: discord.Member = await commands.MemberConverter().convert(await self.bot.get_context(message), message.channel.name.split("-")[1])
             if not send_member.dm_channel:
                 await send_member.create_dm()
             if str(message.attachments) != "[]":
@@ -71,7 +64,7 @@ class TicketSystem(commands.Cog):
             else:
                 await send_member.dm_channel.send(message.content)
         if isinstance(message.channel, discord.channel.DMChannel):
-            if message.content.startswith(config.prefix):
+            if message.content.startswith(config.prefix) or self.bot.get_guild(config.gateway_guild_id) in message.author.mutual_guilds:
                 await self.bot.process_commands(message)
                 return
             support_server = self.bot.get_guild(config.guild_id)
@@ -106,6 +99,18 @@ class TicketSystem(commands.Cog):
                 await user_support_channel.send(content=message.content, file=sent_attachment)
             else:
                 await user_support_channel.send(message.content)
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        if self.bot.get_guild(config.gateway_guild_id) in after.author.mutual_guilds:
+            return
+        if isinstance(after.channel, discord.channel.DMChannel) and not before.content.startswith(config.prefix) and before.content != after.content:
+            ticket_channel: discord.TextChannel = discord.utils.get(self.bot.get_guild(config.guild_id).text_channels, name=f"ticket-{after.author.id}")
+            embed = await utils.create_embed("Message edited",
+                                             f"{after.author.mention} has edited their message.")
+            embed.add_field(name="Before", value=before.content)
+            embed.add_field(name="After", value=after.content)
+            await ticket_channel.send(embed=embed)
 
 
 async def setup(bot):

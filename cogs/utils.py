@@ -1,15 +1,22 @@
+from discord.ext import commands
 import discord
 import os
 import json
-emoji_roles = {
-        '🤖': 'Cybersecurity Expert',
-        '💻': 'Ethical Hacker',
-        '🟡': 'Python Coder',
-        '📢': 'Notifications',
+import chat_exporter
+import io
+import asyncio
+
+import config.config as config
+
+rolebuttons_roles = {
+        'cybersecurity-expert': 'Cybersecurity Expert',
+        'ethical-hacker': 'Ethical Hacker',
+        'python-coder': 'Python Coder',
+        'notifications': 'Notifications',
     }
 
 
-async def create_embed(title="", description="", color=0x5cffb0):
+async def create_embed(title: str = "", description: str = "", color=0x5cffb0):
     embed = discord.Embed(
         title=title,
         description=description,
@@ -18,7 +25,7 @@ async def create_embed(title="", description="", color=0x5cffb0):
     return embed
 
 
-async def send_embed(title, description, ctx=None, dmcommand=True, color=0x5cffb0):
+async def send_embed(title: str = "", description: str = "", ctx: commands.Context = None, dmcommand: bool = True, color=0x5cffb0):
     embed = discord.Embed(
         title=title,
         description=description,
@@ -32,17 +39,19 @@ async def send_embed(title, description, ctx=None, dmcommand=True, color=0x5cffb
     await ctx.send(embed=embed)
 
 
-async def update_server_stats(member):
-    for channel in member.guild.voice_channels:
-        if channel.name.startswith("Members:"):
-            await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
-        if channel.name.startswith("All Members:"):
-            await channel.edit(name=f"All Members: {member.guild.member_count}")
-        if channel.name.startswith("Bots:"):
-            await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
+async def update_server_stats(member: discord.Member):
+    if member.guild.id == config.guild_id:
+        for channel in member.guild.voice_channels:
+            if channel.name.startswith("Members:"):
+                await channel.edit(name=f"Members: {len([m for m in member.guild.members if not m.bot])}")
+                await asyncio.sleep(5)
+            if channel.name.startswith("All Members:"):
+                await channel.edit(name=f"All Members: {member.guild.member_count}")
+            if channel.name.startswith("Bots:") and member.bot:
+                await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
 
 
-async def autorole_status(guild_id):
+async def autorole_status(guild_id: int):
     path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config/autorole.json")
     with open(path, 'r') as f:
         autoroles = json.load(f)
@@ -50,7 +59,7 @@ async def autorole_status(guild_id):
     return autorolestatus, autoroles
 
 
-async def reactionrole_msgid(guild_id):
+async def reactionrole_msgid(guild_id: int):
     path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config/reactionroles.json")
     with open(path, 'r') as f:
         reactionroles = json.load(f)
@@ -58,26 +67,19 @@ async def reactionrole_msgid(guild_id):
     return msgid
 
 
-async def reactionrole_apply(payload=None, guild=None, apply_type="add"):
-    if payload is None:
-        return
-    if apply_type == "add":
-        if not payload.member or payload.member.bot:
-            return
-    if int(await reactionrole_msgid(guild.id)) == payload.message_id:
-        name = emoji_roles[payload.emoji.name]
-        member = discord.utils.get(guild.members, id=payload.user_id)
-        if not member.dm_channel:
-            await member.create_dm()
-        if apply_type == "add":
-            await member.add_roles(discord.utils.get(guild.roles, name=name))
-            await member.dm_channel.send(f"You have been given the role **{name}**.")
-        elif apply_type == "remove":
-            await member.remove_roles(discord.utils.get(guild.roles, name=name))
-            await member.dm_channel.send(f"You have been removed from the role **{name}**.")
+async def rolebuttons_apply(interaction: discord.Interaction, button: discord.Button, guild: discord.Guild):
+    if int(await reactionrole_msgid(guild.id)) == interaction.message.id:
+        if discord.utils.get(guild.roles, name=rolebuttons_roles[button.custom_id]) in interaction.user.roles:
+            await interaction.user.remove_roles(discord.utils.get(guild.roles, name=rolebuttons_roles[button.custom_id]))
+            await interaction.response.send_message(content=f"You have been removed from the role **{button.label}**.",
+                                                    ephemeral=True)
+        else:
+            await interaction.user.add_roles(discord.utils.get(guild.roles, name=rolebuttons_roles[button.custom_id]))
+            await interaction.response.send_message(content=f"You have been given the role **{button.label}**.",
+                                                    ephemeral=True)
 
 
-async def togglerole(member: discord.Member, role: discord.Role, ctx):
+async def togglerole(member: discord.Member, role: discord.Role, ctx: commands.Context):
     if role in member.roles:
         await member.remove_roles(role)
         await send_embed(f"{role.name}",
@@ -88,3 +90,30 @@ async def togglerole(member: discord.Member, role: discord.Role, ctx):
         await send_embed(f"{role.name}",
                          f"{member.mention} has been given the role **{role.name}**.",
                          ctx)
+
+
+async def close_ticket(ctx: commands.Context, user):
+    transcript = await chat_exporter.export(ctx.channel, military_time=True)
+    if transcript is None:
+        return
+    transcript_file = discord.File(io.BytesIO(transcript.encode()),
+                                   filename=f"transcript-{ctx.channel.name}.html")
+    transcript_channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels,
+                                                                name="ticket-transcripts")
+    embed = await create_embed()
+    embed.set_author(name=f"{user.name}#{user.discriminator}",
+                     icon_url=f"{user.avatar.url}")
+    embed.add_field(name="**Ticket Owner**", value=f"{user.mention}", inline=True)
+    embed.add_field(name="**Ticket Owner ID**", value=f"{user.id}", inline=True)
+    embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
+    await transcript_channel.send(embed=embed, file=transcript_file)
+    await asyncio.sleep(5)
+    await ctx.channel.delete(reason="Ticket closed.")
+
+
+async def member_in_server(guild: discord.Guild, user_id: int):
+    try:
+        await guild.fetch_member(user_id)
+        return True
+    except discord.HTTPException:
+        return False
