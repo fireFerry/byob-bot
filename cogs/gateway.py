@@ -33,7 +33,20 @@ class Gateway(commands.Cog):
         if member.guild.id == config.guild_id:
             if self.bot.get_guild(config.gateway_guild_id) in member.mutual_guilds:
                 await self.bot.get_guild(config.gateway_guild_id).kick(member, reason="User joined main server.")
+                log_channel = await self.bot.get_guild(config.gateway_guild_id).fetch_channel(config.gateway_log_channel_id)
+                await log_channel.send(embed=await utils.create_embed("Member joined main server",
+                                                                      f"{member} has joined the main server and has been kicked from the gateway server."))
         if member.guild.id == config.gateway_guild_id:
+            if self.bot.get_guild(config.guild_id) in member.mutual_guilds:
+                if not member.dm_channel:
+                    await member.create_dm()
+                await member.dm_channel.send(embed=await utils.create_embed("Error",
+                                                                            "You cannot join the gateway server while being in the main server."))
+                await member.kick(reason="User is in main server.")
+                log_channel = await member.guild.fetch_channel(config.gateway_log_channel_id)
+                await log_channel.send(embed=await utils.create_embed("Rejected server join",
+                                                                      f"{member} tried to join the gateway server while being in the main server, and has been kicked."))
+                return
             embed = await utils.create_embed(description=f"{member.mention} joined")
             embed.set_author(name=member, icon_url=member.avatar.url)
             embed.add_field(name="Name", value=f"{member} ({member.id}) {member.mention}", inline=False)
