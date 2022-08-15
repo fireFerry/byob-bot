@@ -7,7 +7,7 @@ The source code of the byob discord bot
 1. Clone the repository
 2. Install dependencies
 3. create a config folder containing the files `autorole.json`, `reactionroles.json` and `config.py`
-4. declare the following variables in `config.py`: `token`(str), `prefix`(str), `byob_bot_version`(str), `guild_id`(int), `rules_channel_id`(int) and`gateway_guild_id`(int) 
+4. declare the following variables in `config.py`: `token`(str), `prefix`(str), `byob_bot_version`(str), `guild_id`(int), `rules_channel_id`(int), `gateway_guild_id`(int) and `gateway_log_channel_id`(int)
 5. run the bot using `python3 main.py`
 
 
