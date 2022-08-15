@@ -47,8 +47,10 @@ async def update_server_stats(member: discord.Member):
                 await asyncio.sleep(5)
             if channel.name.startswith("All Members:"):
                 await channel.edit(name=f"All Members: {member.guild.member_count}")
+                await asyncio.sleep(5)
             if channel.name.startswith("Bots:") and member.bot:
                 await channel.edit(name=f"Bots: {len([m for m in member.guild.members if m.bot])}")
+                await asyncio.sleep(5)
 
 
 async def autorole_status(guild_id: int):
