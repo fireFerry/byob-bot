@@ -36,8 +36,9 @@ class Gateway(commands.Cog):
             except discord.DiscordException:
                 if not member.dm_channel:
                     await member.create_dm()
+                channel = discord.utils.get(self.bot.get_guild(config.gateway_guild_id).channels, name="verification")
                 await member.dm_channel.send(embed=await utils.create_embed("Error",
-                                                                            "You are not verified in the gateway server. Please join the gateway server and verify yourself."))
+                                                                            f"You are not verified in the gateway server. Please join the gateway server and verify yourself.\n {await channel.create_invite(unique=False)}"))
                 await member.guild.kick(member, reason="User joined server without using gateway invite.")
                 return
             await self.bot.get_guild(config.gateway_guild_id).kick(member, reason="User joined main server.")
