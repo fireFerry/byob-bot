@@ -81,6 +81,15 @@ class Gateway(commands.Cog):
         if member.guild.id == config.guild_id:
             await self.bot.get_guild(config.gateway_guild_id).unban(member.id, reason="User unbanned from main server, synchronizing unbans.")
 
+    @commands.command()
+    @commands.has_role('Support Team')
+    async def forceverify(self, ctx, user: discord.User):
+        member = await self.bot.get_guild(config.gateway_guild_id).fetch_member(user.id)
+        if discord.utils.get(member.guild.roles, name="Unverified") in member.roles:
+            await member.remove_roles(discord.utils.get(member.guild.roles, name="Unverified"))
+            await member.add_roles(discord.utils.get(member.guild.roles, name="Verified"))
+            await utils.send_embed("Forcefully Verified", f"{member} has been forcefully verified.", ctx)
+
 
 async def setup(bot):
     await bot.add_cog(Gateway(bot))
