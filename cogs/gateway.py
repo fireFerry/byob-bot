@@ -1,8 +1,8 @@
+from datetime import datetime, timedelta
 import discord
 from discord.ext import commands
 from config import config
-import cogs.utils as utils
-from datetime import datetime, timedelta
+from cogs import utils
 
 
 class Gateway(commands.Cog):
@@ -32,8 +32,20 @@ class Gateway(commands.Cog):
     async def on_member_join(self, member: discord.Member):
         if member.guild.id == config.guild_id:
             try:
-                await self.bot.get_guild(config.gateway_guild_id).fetch_member(member.id)
+                gateway_member = await self.bot.get_guild(config.gateway_guild_id).fetch_member(member.id)
+                verified = True
+                if not discord.utils.get(self.bot.get_guild(config.gateway_guild_id).roles, name="Verified") in gateway_member.roles:
+                    verified = False
             except discord.DiscordException:
+                verified = False
+            if verified:
+                await self.bot.get_guild(config.gateway_guild_id).kick(member, reason="User joined main server.")
+                log_channel = await self.bot.get_guild(config.gateway_guild_id).fetch_channel(
+                    config.gateway_log_channel_id)
+                await log_channel.send(embed=await utils.create_embed("Member joined main server",
+                                                                      f"{member} has joined the main server and has been kicked from the gateway server."))
+                return
+            else:
                 if not member.dm_channel:
                     await member.create_dm()
                 channel = discord.utils.get(self.bot.get_guild(config.gateway_guild_id).channels, name="verification")
@@ -41,10 +53,7 @@ class Gateway(commands.Cog):
                                                                             f"You are not verified in the gateway server. Please join the gateway server and verify yourself.\n {await channel.create_invite(unique=False)}"))
                 await member.guild.kick(member, reason="User joined server without using gateway invite.")
                 return
-            await self.bot.get_guild(config.gateway_guild_id).kick(member, reason="User joined main server.")
-            log_channel = await self.bot.get_guild(config.gateway_guild_id).fetch_channel(config.gateway_log_channel_id)
-            await log_channel.send(embed=await utils.create_embed("Member joined main server",
-                                                                  f"{member} has joined the main server and has been kicked from the gateway server."))
+
         if member.guild.id == config.gateway_guild_id:
             if self.bot.get_guild(config.guild_id) in member.mutual_guilds:
                 if not member.dm_channel:

@@ -1,12 +1,11 @@
+import io
 from discord.ext import commands
 import discord
 import os
 import json
 import chat_exporter
-import io
 import asyncio
-
-import config.config as config
+from config import config
 
 rolebuttons_roles = {
         'cybersecurity-expert': 'Cybersecurity Expert',

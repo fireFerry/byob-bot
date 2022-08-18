@@ -9,7 +9,7 @@ class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # shutdown command, only useable by the owner.
+    # shutdown command, only usable by the owner.
 
     @commands.command()
     @commands.is_owner()
@@ -21,7 +21,7 @@ class Owner(commands.Cog):
         await self.bot.close()
         print(f'{self.bot.user.name} has been shut down.')
 
-    # reboot command, only useable by the owner.
+    # reboot command, only usable by the owner.
 
     @commands.command()
     @commands.is_owner()
