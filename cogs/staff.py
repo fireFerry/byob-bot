@@ -1,12 +1,10 @@
 from discord.ext import commands
 import discord
 import json
-import asyncio
-import chat_exporter
-import io
 import os
 from datetime import datetime, timedelta
 import cogs.utils as utils
+from cogs.reactionroles import RoleButtons
 
 
 class Staff(commands.Cog):
@@ -17,20 +15,20 @@ class Staff(commands.Cog):
 
     @commands.command()
     @commands.has_role('Support Team')
-    async def blacklist(self, ctx, member: discord.Member):
+    async def blacklist(self, ctx: commands.Context, member: discord.Member):
         await utils.togglerole(member, discord.utils.get(ctx.guild.roles, name="Ticket Blacklist"), ctx)
 
     # contributor command
     @commands.command()
     @commands.has_role('Support Team')
-    async def contributor(self, ctx, member: discord.Member):
+    async def contributor(self, ctx: commands.Context, member: discord.Member):
         await utils.togglerole(member, discord.utils.get(ctx.guild.roles, name="Contributor"), ctx)
 
     # toggleautorole command to toggle automatically giving the Member role after membership screening
 
     @commands.command()
     @commands.has_role('Support Team')
-    async def toggleautorole(self, ctx):
+    async def toggleautorole(self, ctx: commands.Context):
         autorolestatus, autoroles = await utils.autorole_status(ctx.guild.id)
         path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config/autorole.json")
         if autorolestatus == 'on':
@@ -50,7 +48,7 @@ class Staff(commands.Cog):
 
     @commands.command(aliases=['ui'])
     @commands.has_role('Support Team')
-    async def userinfo(self, ctx, member: discord.Member):
+    async def userinfo(self, ctx: commands.Context, member: discord.Member):
         timecurrentlyutc = datetime.utcnow().strftime("%d-%m-%Y %H:%M:%S")
         roles = [role.mention for role in member.roles]
         embed = await utils.create_embed(f"{member.name}{member.discriminator}",
@@ -58,14 +56,14 @@ class Staff(commands.Cog):
         embed.set_image(url=member.avatar.url)
         embed.add_field(name="**Pending:**", value=f"{member.pending}", inline=True)
         embed.add_field(name='**Created account at:**', value=member.created_at.strftime(
-            'Today at %-H:%M' if member.created_at.date() == datetime.today().date()
-            else 'Yesterday at %-H:%M' if member.created_at.date() == (datetime.today() - timedelta(1)).date()
-            else '%d-%m-%Y')
+            'Today at %#H:%M' if member.created_at.date() == datetime.today().date()
+            else 'Yesterday at %#H:%M' if member.created_at.date() == (datetime.today() - timedelta(1)).date()
+            else '%d-%m-%Y at %#H:%M:%S')
                         )
         embed.add_field(name="**Joined at:**", value=member.joined_at.strftime(
-            'Today at %-H:%M' if member.joined_at.date() == datetime.today().date()
-            else 'Yesterday at %-H:%M' if member.joined_at.date() == (datetime.today() - timedelta(1)).date()
-            else '%d-%m-%Y')
+            'Today at %#H:%M' if member.joined_at.date() == datetime.today().date()
+            else 'Yesterday at %#H:%M' if member.joined_at.date() == (datetime.today() - timedelta(1)).date()
+            else '%d-%m-%Y at %#H:%M:%S')
                         )
         embed.add_field(name="**Roles:**", value=f"{roles}", inline=True)
         embed.set_footer(text=f"{timecurrentlyutc}")
@@ -73,7 +71,7 @@ class Staff(commands.Cog):
         await ctx.send(embed=embed)
 
     @userinfo.error
-    async def userinfo_error(self, ctx, error):
+    async def userinfo_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.MissingRequiredArgument):
             await utils.send_embed("Error",
                                    f"{ctx.author.mention} Please specify a user.",
@@ -89,106 +87,48 @@ class Staff(commands.Cog):
 
     @commands.command()
     @commands.has_role('Support Team')
-    async def reactionrole(self, ctx):
-        await utils.send_embed("Reaction Role Setup",
-                               "Firstly, type the channel # you want to get the message to be sent in.",
-                               ctx,
-                               False)
-
-        def check(m):
-            return m.author.id == ctx.author.id
-
-        chosen_channel = await self.bot.wait_for('message', check=check)
-        if chosen_channel.content is not None:
-
-            embed = await utils.create_embed("Reaction Role Setup",
-                                             f"Alright, the message has been sent in {chosen_channel.content}. Please copy the message id and send it here.",
-                                             )
-            await ctx.send(embed=embed)
-            channel_chosen_parsed = await commands.TextChannelConverter().convert(ctx, chosen_channel.content)
-            embed = await utils.create_embed("**Roles**",
-                                             "React to this message to receive specific roles!,"
-                                             )
-            embed.add_field(name="Cybersecurity Expert",
-                            value="React with :robot: to receive the Cybersecurity Expert role.", inline=False)
-            embed.add_field(name="Ethical Hacker", value="React with :computer: to receive the Ethical Hacker role.",
-                            inline=False)
-            embed.add_field(name="Python Coder", value="React with :yellow_circle: to receive the Python Coder role.",
-                            inline=False)
-            embed.add_field(name="Notifications", value="React with :loudspeaker: to receive the Notifications role.",
-                            inline=False)
-            message_ = await channel_chosen_parsed.send(embed=embed)
-            await message_.add_reaction("🤖")
-            await asyncio.sleep(1)
-            await message_.add_reaction("💻")
-            await asyncio.sleep(1)
-            await message_.add_reaction("🟡")
-            await asyncio.sleep(1)
-            await message_.add_reaction("📢")
-
-            def check(m):
-                return m.author.id == ctx.author.id
-
-            chosen_messageid = await self.bot.wait_for('message', check=check)
-            if chosen_messageid.content is not None:
-                path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config/reactionroles.json")
-                with open(path, 'r') as f:
-                    reactionroles = json.load(f)
-
-                reactionroles[str(ctx.guild.id)] = f'{chosen_messageid.content}'
-
-                with open(path, 'w') as f:
-                    json.dump(reactionroles, f, indent=4)
-                embed = await utils.create_embed("Reaction Role Setup",
-                                                 f"The message id: {chosen_messageid.content} has been added to the list. Reacting should now add/remove roles.",
-                                                 )
-                await ctx.send(embed=embed)
-            else:
-                embed = await utils.create_embed("Error",
-                                                 "An error has occurred. Please try again.",
-                                                 )
-                await ctx.send(embed=embed)
-        else:
-            embed = await utils.create_embed("Error",
-                                             "An error has occurred. Please try again.",
-                                             )
-            await ctx.send(embed=embed)
+    async def reactionrole(self, ctx: commands.Context):
+        await ctx.message.delete()
+        embed = await utils.create_embed("**Roles**",
+                                         "Click the buttons on this message to toggle roles and access special channels!"
+                                         )
+        message = await ctx.send(embed=embed, view=RoleButtons(self.bot))
+        path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config/reactionroles.json")
+        with open(path, 'r') as f:
+            reactionroles = json.load(f)
+        reactionroles[str(ctx.guild.id)] = f'{message.id}'
+        with open(path, 'w') as f:
+            json.dump(reactionroles, f, indent=4)
+        embed = await utils.create_embed("Button Role Setup",
+                                         f"The message id: {message.id} has been added to the list.")
+        await ctx.author.create_dm()
+        await ctx.author.dm_channel.send(embed=embed)
 
     # ticket close command
 
     @commands.command()
     @commands.has_role('Support Team')
-    async def close(self, ctx):
+    async def close(self, ctx: commands.Context):
         if hasattr(ctx.message.channel, 'category'):
             if str(ctx.channel.category) == "Active Tickets" and ctx.author != self.bot.user:
                 await ctx.message.delete()
-                send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name.split("-")[1])
-                embed = await utils.create_embed("Ticket Closed",
-                                                 "A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have a new issue.",
-                                                 )
-                if not send_member.dm_channel:
-                    await send_member.create_dm()
-                await send_member.dm_channel.send(embed=embed)
-                embed = await utils.create_embed("Ticket Closed",
-                                                 "Ticket will be deleted in 5 seconds...",
-                                                 )
+                embed_dm = await utils.create_embed("Ticket Closed",
+                                                    "A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have a new issue.")
+                if await utils.member_in_server(ctx.guild, int(ctx.channel.name.split("-")[1])):
+                    send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name.split("-")[1])
+                    embed = await utils.create_embed("Ticket Closed",
+                                                     "Ticket will be deleted in 5 seconds...")
+                else:
+                    send_member = await commands.UserConverter().convert(ctx, ctx.channel.name.split("-")[1])
+                    embed_dm = False
+                    embed = await utils.create_embed("Ticket Closed",
+                                                     "Ticket closed because user left the server.")
+                if embed_dm is discord.Embed:
+                    if not send_member.dm_channel:
+                        await send_member.create_dm()
+                    await send_member.dm_channel.send(embed=embed_dm)
                 await ctx.channel.send(embed=embed)
-                transcript = await chat_exporter.export(ctx.channel, military_time=True)
-                if transcript is None:
-                    return
-                transcript_file = discord.File(io.BytesIO(transcript.encode()),
-                                               filename=f"transcript-{ctx.channel.name}.html")
-                transcript_channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels,
-                                                                            name="ticket-transcripts")
-                embed = await utils.create_embed()
-                embed.set_author(name=f"{send_member.name}#{send_member.discriminator}",
-                                 icon_url=f"{send_member.avatar.url}")
-                embed.add_field(name="**Ticket Owner**", value=f"{send_member.mention}", inline=True)
-                embed.add_field(name="**Ticket Owner ID**", value=f"{send_member.id}", inline=True)
-                embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
-                await transcript_channel.send(embed=embed, file=transcript_file)
-                await asyncio.sleep(5)
-                await ctx.channel.delete(reason="Ticket closed.")
+                await utils.close_ticket(ctx, send_member)
 
 
 async def setup(bot):

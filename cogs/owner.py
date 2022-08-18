@@ -9,11 +9,11 @@ class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # shutdown command, only useable by the owner.
+    # shutdown command, only usable by the owner.
 
     @commands.command()
     @commands.is_owner()
-    async def shutdown(self, ctx):
+    async def shutdown(self, ctx: commands.Context):
         await self.bot.change_presence(status=discord.Status.invisible)
         await utils.send_embed("Shutdown",
                                f"{self.bot.user} has been shut down.",
@@ -21,11 +21,11 @@ class Owner(commands.Cog):
         await self.bot.close()
         print(f'{self.bot.user.name} has been shut down.')
 
-    # reboot command, only useable by the owner.
+    # reboot command, only usable by the owner.
 
     @commands.command()
     @commands.is_owner()
-    async def reboot(self, ctx):
+    async def reboot(self, ctx: commands.Context):
         await self.bot.change_presence(status=discord.Status.invisible)
         await utils.send_embed("Rebooting",
                                "Reboot initiated.",
@@ -37,7 +37,7 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def dev_status(self, ctx):
+    async def dev_status(self, ctx: commands.Context):
         autorolestatus, _ = await utils.autorole_status(ctx.guild.id)
         embed = await utils.create_embed("Dev Status",
                                          f"**Status**: Running version {config.byob_bot_version}.\n**Ping**: {round(self.bot.latency * 1000)}ms\n**Prefix**: {config.prefix}\n**Autorole status**: {autorolestatus}",
@@ -51,7 +51,7 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx, extension):
+    async def reload(self, ctx: commands.Context, extension: str):
         await self.bot.reload_extension(f"cogs.{extension}")
         await utils.send_embed("Extension reloaded",
                                f"{extension} has been reloaded.",
@@ -59,7 +59,7 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def disable(self, ctx, extension):
+    async def disable(self, ctx: commands.Context, extension: str):
         await self.bot.unload_extension(f'cogs.{extension}')
         await utils.send_embed("Extension Disabled",
                                f"{extension} has been disabled.",
@@ -67,7 +67,7 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def enable(self, ctx, extension):
+    async def enable(self, ctx: commands.Context, extension: str):
         await self.bot.load_extension(f'cogs.{extension}')
         await utils.send_embed("Extension Enabled",
                                f"{extension} has been enabled.",

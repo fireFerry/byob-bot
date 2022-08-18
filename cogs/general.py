@@ -13,7 +13,7 @@ class General(commands.Cog):
     # status command
 
     @commands.command(aliases=['version'])
-    async def status(self, ctx):
+    async def status(self, ctx: commands.Context):
         from cogs.prints import launch_time
         delta_uptime = datetime.utcnow() - launch_time
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
@@ -27,7 +27,7 @@ class General(commands.Cog):
     # ping command
 
     @commands.command()
-    async def ping(self, ctx):
+    async def ping(self, ctx: commands.Context):
         await utils.send_embed("Ping",
                                f"Pong! Responded with a time of {round(self.bot.latency * 1000)}ms.",
                                ctx,)
@@ -35,7 +35,7 @@ class General(commands.Cog):
     # GitHub command
 
     @commands.command(aliases=['gh'])
-    async def github(self, ctx):
+    async def github(self, ctx: commands.Context):
         await utils.send_embed("GitHub",
                                "This bot is open source, the project's source code can be found here: https://github.com/fireFerry/byob-bot",
                                ctx,)
@@ -43,7 +43,7 @@ class General(commands.Cog):
     # issues command
 
     @commands.command()
-    async def issues(self, ctx):
+    async def issues(self, ctx: commands.Context):
         await utils.send_embed("Issues",
                                "If you have any issues with the Byob Bot or suggestions for new features, let us know! You can submit issues and feature requests here: https://github.com/fireFerry/byob-bot/issues/new/choose",
                                ctx,)
@@ -51,7 +51,7 @@ class General(commands.Cog):
     # bugs command
 
     @commands.command()
-    async def bugs(self, ctx):
+    async def bugs(self, ctx: commands.Context):
         await utils.send_embed("Bugs",
                                "Do you think that you've found a bug with Byob Bot? No problem! Submit bug reports here: https://github.com/fireFerry/byob-bot/issues/new/choose",
                                ctx,)
@@ -59,13 +59,13 @@ class General(commands.Cog):
     # Server stats update on join
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         await utils.update_server_stats(member)
 
     # Server stats update on leave
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
+    async def on_member_remove(self, member: discord.Member):
         await utils.update_server_stats(member)
 
     # Give Member role after Membership Screening
@@ -75,13 +75,12 @@ class General(commands.Cog):
         autorolestatus, _ = await utils.autorole_status(after.guild.id)
         if autorolestatus == 'on':
             if before.pending != after.pending:
-                role = discord.utils.get(before.guild.roles, name="Members")
-                await after.add_roles(role)
+                await after.add_roles(discord.utils.get(before.guild.roles, name="Members"))
 
     # help command
 
     @commands.command()
-    async def help(self, ctx):
+    async def help(self, ctx: commands.Context):
         await ctx.message.delete()
         contents_name = ["General commands:",
                          "Support commands:",
@@ -90,7 +89,7 @@ class General(commands.Cog):
         contents_value = [
             f"**{config.prefix}status|{config.prefix}version:** Displays the status of the bot.\n**{config.prefix}help:** Displays the commands list of the bot.\n**{config.prefix}ping:** Displays the latency of the bot.\n**{config.prefix}github:** Displays the GitHub link for the bot.\n**{config.prefix}issues:** Displays information if you have an issue or a feature request.\n**{config.prefix}bugs:** Displays information on what to do if you have found a bug in Byob Bot.\n",
             f"**{config.prefix}support:** Receiving help in the Discord.\n**{config.prefix}portforwarding|{config.prefix}portforward|{config.prefix}pfw:** Displays how to port forward.\n**{config.prefix}requirements|{config.prefix}req:** Displays the requirements needed for byob.\n**{config.prefix}wsl:** Displays information about using wsl for byob.\n**{config.prefix}vps:** Displays information about using byob on a vps.\n**{config.prefix}executable|{config.prefix}exe:** Displays information on what to do if executable payloads aren't generating.\n**{config.prefix}wiki:** Displays the wiki and GitHub links for BYOB",
-            f"**{config.prefix}userinfo|{config.prefix}ui:** Display informatiom about a specific user.\n**{config.prefix}contributor:** Toggle the Contributor role for a specific user.\n**{config.prefix}blacklist:** Toggle the Ticket Blacklist role for a specific user.**{config.prefix}userinfo|{config.prefix}ui:** Display informatiom about a specific user.\n**{config.prefix}toggleautorole:** Toggles whether the bot should give the Members role if member accepted membership screening.\n**{config.prefix}reactionrole:** Command to setup the reaction role system.",
+            f"**{config.prefix}userinfo|{config.prefix}ui:** Display information about a specific user.\n**{config.prefix}contributor:** Toggle the Contributor role for a specific user.\n**{config.prefix}blacklist:** Toggle the Ticket Blacklist role for a specific user.**{config.prefix}userinfo|{config.prefix}ui:** Display information about a specific user.\n**{config.prefix}toggleautorole:** Toggles whether the bot should give the Members role if member accepted membership screening.\n**{config.prefix}reactionrole:** Command to setup the reaction role system.",
             f"**{config.prefix}shutdown:** Shutdown the bot completely.\n**{config.prefix}dev_status:** Information for the developer."]
         helppages = 3
         cur_page = 0

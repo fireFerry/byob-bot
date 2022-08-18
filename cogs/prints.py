@@ -12,15 +12,15 @@ class Prints(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         print(f'{member} Joined the Guild')
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
+    async def on_member_remove(self, member: discord.Member):
         print(f'{member}Left the Guild')
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if message.author.id != self.bot.user.id:
             print(f"{message.guild}/{message.channel}/{message.author.name}>{message.content}")
             if message.embeds:
