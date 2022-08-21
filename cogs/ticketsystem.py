@@ -102,7 +102,7 @@ class TicketSystem(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        if self.bot.get_guild(config.gateway_guild_id) in after.author.mutual_guilds:
+        if isinstance(after.author, discord.ClientUser) or self.bot.get_guild(config.gateway_guild_id) in after.author.mutual_guilds:
             return
         if isinstance(after.channel, discord.channel.DMChannel) and not before.content.startswith(config.prefix) and before.content != after.content:
             ticket_channel: discord.TextChannel = discord.utils.get(self.bot.get_guild(config.guild_id).text_channels, name=f"ticket-{after.author.id}")

@@ -49,8 +49,11 @@ class Gateway(commands.Cog):
                 if not member.dm_channel:
                     await member.create_dm()
                 channel = discord.utils.get(self.bot.get_guild(config.gateway_guild_id).channels, name="verification")
-                await member.dm_channel.send(embed=await utils.create_embed("Error",
-                                                                            f"You are not verified in the gateway server. Please join the gateway server and verify yourself.\n {await channel.create_invite(unique=False)}"))
+                try:
+                    await member.dm_channel.send(embed=await utils.create_embed("Error",
+                                                                                f"You are not verified in the gateway server. Please join the gateway server and verify yourself.\n {await channel.create_invite(unique=False)}"))
+                except discord.HTTPException:
+                    pass
                 await member.guild.kick(member, reason="User joined server without using gateway invite.")
                 return
 
@@ -66,7 +69,7 @@ class Gateway(commands.Cog):
                                                                       f"{member} tried to join the gateway server while being in the main server, and has been kicked."))
                 return
             embed = await utils.create_embed(description=f"{member.mention} joined")
-            embed.set_author(name=member, icon_url=member.avatar.url)
+            embed.set_author(name=member, icon_url=member.display_avatar.url)
             embed.add_field(name="Name", value=f"{member} ({member.id}) {member.mention}", inline=False)
             embed.add_field(name='**Created account at:**', value=member.created_at.strftime(
                 'Today at %#H:%M:%S' if member.created_at.date() == datetime.today().date()

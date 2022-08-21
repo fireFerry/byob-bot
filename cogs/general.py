@@ -59,8 +59,9 @@ class General(commands.Cog):
     # Server stats update on join
 
     @commands.Cog.listener()
-    async def on_member_join(self, member: discord.Member):
-        await utils.update_server_stats(member)
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if before.pending != after.pending and not after.pending:
+            await utils.update_server_stats(after)
 
     # Server stats update on leave
 
