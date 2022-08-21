@@ -103,7 +103,7 @@ async def close_ticket(ctx: commands.Context, user):
                                                                 name="ticket-transcripts")
     embed = await create_embed()
     embed.set_author(name=f"{user.name}#{user.discriminator}",
-                     icon_url=f"{user.avatar.url}")
+                     icon_url=f"{user.display_avatar.url}")
     embed.add_field(name="**Ticket Owner**", value=f"{user.mention}", inline=True)
     embed.add_field(name="**Ticket Owner ID**", value=f"{user.id}", inline=True)
     embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)

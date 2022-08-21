@@ -53,7 +53,7 @@ class Staff(commands.Cog):
         roles = [role.mention for role in member.roles]
         embed = await utils.create_embed(f"{member.name}{member.discriminator}",
                                          f"{member.mention}")
-        embed.set_image(url=member.avatar.url)
+        embed.set_image(url=member.display_avatar.url)
         embed.add_field(name="**Pending:**", value=f"{member.pending}", inline=True)
         embed.add_field(name='**Created account at:**', value=member.created_at.strftime(
             'Today at %#H:%M' if member.created_at.date() == datetime.today().date()
