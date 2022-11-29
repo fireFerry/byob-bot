@@ -1,10 +1,12 @@
 import discord
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 from discord import app_commands
 from discord.ext import commands
 from config import config
 import cogs.utils as utils
+
+launch_time = datetime.utcnow() + timedelta(hours=1)
 
 
 class General(commands.Cog):
@@ -15,14 +17,10 @@ class General(commands.Cog):
 
     @commands.command(aliases=['version'])
     async def status(self, ctx: commands.Context):
-        from cogs.prints import launch_time
-        delta_uptime = datetime.utcnow() - launch_time
-        hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
-        minutes, seconds = divmod(remainder, 60)
-        days, hours = divmod(hours, 24)
-        uptime = str(f"{days}:{hours}:{minutes}:{seconds}")
+        global launch_time
+        uptime = datetime.timestamp(launch_time)
         await utils.send_embed("Status",
-                               f"**Status**: :green_circle: Running\n **Version**: {config.byob_bot_version}\n **Ping**: {round(self.bot.latency * 1000)}ms\n **Uptime**: {uptime}",
+                               f"**Status**: :green_circle: Running\n **Version**: {config.byob_bot_version}\n **Ping**: {round(self.bot.latency * 1000)}ms\n **Online since**: <t:{uptime.__floor__()}:R>",
                                ctx,)
 
     # ping command
@@ -38,7 +36,6 @@ class General(commands.Cog):
         await interaction.response.send_message(embed=await utils.create_embed("Ping", f"Pong! Responded with a time of {round(self.bot.latency * 1000)}ms."), ephemeral=True)
 
     # GitHub command
-
 
     @commands.command(aliases=['gh'])
     async def github(self, ctx: commands.Context):
@@ -139,6 +136,16 @@ class General(commands.Cog):
             except asyncio.TimeoutError:
                 await message.delete()
                 return
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        global launch_time
+        launch_time = datetime.utcnow() + timedelta(hours=1)
+        await self.bot.change_presence(status=discord.Status.online,
+                                       activity=discord.Game(name=f"byob | {config.prefix}help"))
+        print('User:', self.bot.user)
+        print('ID:', self.bot.user.id)
+        print('bot ready')
 
 
 async def setup(bot):
