@@ -109,26 +109,35 @@ class Staff(commands.Cog):
     @commands.command()
     @commands.has_role('Support Team')
     async def close(self, ctx: commands.Context):
-        if hasattr(ctx.message.channel, 'category'):
-            if str(ctx.channel.category) == "Active Tickets" and ctx.author != self.bot.user:
-                await ctx.message.delete()
-                embed_dm = await utils.create_embed("Ticket Closed",
-                                                    "A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have a new issue.")
-                if await utils.member_in_server(ctx.guild, int(ctx.channel.name.split("-")[1])):
-                    send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name.split("-")[1])
-                    embed = await utils.create_embed("Ticket Closed",
-                                                     "Ticket will be deleted in 5 seconds...")
-                else:
-                    send_member = await commands.UserConverter().convert(ctx, ctx.channel.name.split("-")[1])
-                    embed_dm = False
-                    embed = await utils.create_embed("Ticket Closed",
-                                                     "Ticket closed because user left the server.")
-                if embed_dm is discord.Embed:
-                    if not send_member.dm_channel:
-                        await send_member.create_dm()
-                    await send_member.dm_channel.send(embed=embed_dm)
-                await ctx.channel.send(embed=embed)
-                await utils.close_ticket(ctx, send_member)
+        if ctx.channel.type is discord.ChannelType.public_thread and ctx.channel.parent.name == "tickets" and ctx.author != self.bot.user:
+            await ctx.message.delete()
+            embed_dm = await utils.create_embed("Ticket Closed",
+                                                "A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have a new issue.")
+            ticket = await utils.get_ticket(thread_id=ctx.channel.id)
+            send_dm = True
+            if await utils.member_in_server(ctx.guild, ticket[0]):
+                send_member = await commands.MemberConverter().convert(ctx, str(ticket[0]))
+                embed = await utils.create_embed("Ticket Closed",
+                                                 "Ticket will be deleted in 5 seconds...")
+            else:
+                send_member = await commands.UserConverter().convert(ctx, str(ticket[0]))
+                send_dm = False
+                embed = await utils.create_embed("Ticket Closed",
+                                                 "Ticket closed because user left the server.")
+            if send_dm:
+                if not send_member.dm_channel:
+                    await send_member.create_dm()
+                await send_member.dm_channel.send(embed=embed_dm)
+            await ctx.channel.send(embed=embed)
+            await utils.close_ticket(ctx, send_member)
+
+    # slash commands sync command
+
+    @commands.command()
+    @commands.has_role('Support Team')
+    async def sync(self, ctx: commands.Context):
+        await self.bot.tree.sync()
+        await utils.send_embed("Slash Commands", "Slash commands synced.", ctx, False)
 
 
 async def setup(bot):

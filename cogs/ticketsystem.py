@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import sqlite3
 from config import config
 import cogs.utils as utils
 
@@ -14,13 +15,14 @@ class CloseButton(discord.ui.View):
         ctx = await self.bot.get_context(interaction.message)
         embed_dm = await utils.create_embed("Ticket Closed",
                                             "A staff member has closed your ticket. Sending a new message will create a new ticket, please only do so if you have a new issue.")
-        if await utils.member_in_server(interaction.guild, ctx.channel.name.split("-")[1]):
-            send_member = await commands.MemberConverter().convert(ctx, ctx.channel.name.split("-")[1])
+        ticket = await utils.get_ticket(thread_id=interaction.channel_id)
+        if await utils.member_in_server(interaction.guild, ticket[0]):
+            send_member = await commands.MemberConverter().convert(ctx, str(ticket[0]))
             embed = await utils.create_embed("Ticket Closed",
                                              "Ticket will be deleted in 5 seconds...", )
             embed_dm = False
         else:
-            send_member = await commands.UserConverter().convert(ctx, ctx.channel.name.split("-")[1])
+            send_member = await commands.UserConverter().convert(ctx, str(ticket[0]))
             embed = await utils.create_embed("Ticket Closed",
                                              "Ticket closed because user left the server.")
         if embed_dm is discord.Embed:
@@ -46,16 +48,17 @@ class TicketSystem(commands.Cog):
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return
-        if hasattr(message.channel, 'category') and str(message.channel.category) == "Active Tickets":
+        if message.channel.type is discord.ChannelType.public_thread and message.channel.parent.name == "tickets":
             if message.guild.id != config.guild_id or message.content == f"{config.prefix}close":
                 return
-            if not await utils.member_in_server(message.guild, int(message.channel.name.split("-")[1])):
-                send_member: discord.User = await commands.UserConverter().convert(await self.bot.get_context(message), message.channel.name.split("-")[1])
+            ticket = await utils.get_ticket(member_id=message.author.id)
+            if not await utils.member_in_server(message.guild, ticket[0]):
+                send_member: discord.User = await commands.UserConverter().convert(await self.bot.get_context(message), ticket[0])
                 embed = await utils.create_embed("Ticket Closed", "Ticket closed because user left the server.")
-                await message.channel.send(embed=embed)
+                await message.Thread.send(embed=embed)
                 await utils.close_ticket(await self.bot.get_context(message), send_member)
                 return
-            send_member: discord.Member = await commands.MemberConverter().convert(await self.bot.get_context(message), message.channel.name.split("-")[1])
+            send_member: discord.Member = await commands.MemberConverter().convert(await self.bot.get_context(message), str(ticket[0]))
             if not send_member.dm_channel:
                 await send_member.create_dm()
             if str(message.attachments) != "[]":
@@ -64,7 +67,7 @@ class TicketSystem(commands.Cog):
             else:
                 await send_member.dm_channel.send(message.content)
         if isinstance(message.channel, discord.channel.DMChannel):
-            if message.content.startswith(config.prefix) or self.bot.get_guild(config.gateway_guild_id) in message.author.mutual_guilds:
+            if message.content.startswith(config.prefix):  # or self.bot.get_guild(config.gateway_guild_id) in message.author.mutual_guilds:
                 await self.bot.process_commands(message)
                 return
             support_server = self.bot.get_guild(config.guild_id)
@@ -74,43 +77,57 @@ class TicketSystem(commands.Cog):
                                                  "You are blacklisted from creating tickets. Please contact a staff member if you think this is in error.",)
                 await message.author.send(embed=embed)
                 return
-            match = None
-            for channel in support_server.text_channels:
-                if channel.name.startswith("ticket-") and channel.name.split("-")[1] == str(member.id):
-                    match = channel
-                    break
-            user_support_channel: discord.TextChannel = match
+            ticket = await utils.get_ticket(member_id=member.id)
+            if ticket is None:
+                match = False
+            else:
+                match = True
             if not match:
-                support_category = discord.utils.get(support_server.categories, name="Active Tickets")
-                if support_category is None:
-                    raise commands.ChannelNotFound("Category 'Active Tickets' not found")
-                user_support_channel: discord.TextChannel = await support_server.create_text_channel(name=f"ticket-{member.id}", category=support_category)
+                ticket_channel = None
+                for channel in support_server.channels:
+                    if channel.name == "tickets":
+                        ticket_channel = channel
+                        break
+                if not ticket_channel:
+                    raise commands.ChannelNotFound("Tickets channel not found")
+                user_support_thread: discord.Thread = await ticket_channel.create_thread(name=f"Ticket of {member.name}", type=discord.ChannelType.public_thread, reason="Ticket created")
                 embed = await utils.create_embed("Ticket Opened",
                                                  "A staff member will be with you shortly. Please explain your issue and include all relevant information.")
                 await message.author.send(embed=embed)
 
                 embed = await utils.create_embed(f"Ticket Opened by {message.author.name}#{message.author.discriminator}",
                                                  f"This ticket has been opened by {message.author.mention}")
-                welcome_message = await user_support_channel.send(embed=embed, view=CloseButton(self.bot))
+                welcome_message = await user_support_thread.send(embed=embed, view=CloseButton(self.bot))
                 await welcome_message.pin()
-                await user_support_channel.purge(limit=1)
+                await user_support_thread.purge(limit=1)
+                conn = sqlite3.connect("tickets.db")
+                conn.cursor().execute("INSERT INTO tickets VALUES (?, ?)", (message.author.id, user_support_thread.id))
+                conn.commit()
+                conn.close()
+            ticket = await utils.get_ticket(member_id=member.id)
+            user_support_thread = await support_server.fetch_channel(ticket[1])
             if str(message.attachments) != "[]":
                 sent_attachment = await message.attachments[0].to_file(use_cached=False, spoiler=False)
-                await user_support_channel.send(content=message.content, file=sent_attachment)
+                await user_support_thread.send(content=message.content, file=sent_attachment)
             else:
-                await user_support_channel.send(message.content)
+                await user_support_thread.send(message.content)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        if isinstance(after.author, discord.ClientUser) or self.bot.get_guild(config.gateway_guild_id) in after.author.mutual_guilds:
+        if isinstance(after.author, discord.ClientUser):
             return
+        # if self.bot.get_guild(config.gateway_guild_id) in after.author.mutual_guilds:
+        #     return
         if isinstance(after.channel, discord.channel.DMChannel) and not before.content.startswith(config.prefix) and before.content != after.content:
-            ticket_channel: discord.TextChannel = discord.utils.get(self.bot.get_guild(config.guild_id).text_channels, name=f"ticket-{after.author.id}")
+            ticket = await utils.get_ticket(member_id=after.author.id)
+            if ticket is None:
+                return
+            ticket_thread: discord.Thread = await self.bot.get_guild(config.guild_id).fetch_channel(ticket[1])
             embed = await utils.create_embed("Message edited",
                                              f"{after.author.mention} has edited their message.")
             embed.add_field(name="Before", value=before.content)
             embed.add_field(name="After", value=after.content)
-            await ticket_channel.send(embed=embed)
+            await ticket_thread.send(embed=embed)
 
 
 async def setup(bot):

@@ -1,2 +1,2 @@
-discord.py
-chat-exporter
+discord.py==2.1.0
+chat-exporter==2.5.0

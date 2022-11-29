@@ -1,6 +1,7 @@
 import discord
 import asyncio
 from datetime import datetime
+from discord import app_commands
 from discord.ext import commands
 from config import config
 import cogs.utils as utils
@@ -32,7 +33,12 @@ class General(commands.Cog):
                                f"Pong! Responded with a time of {round(self.bot.latency * 1000)}ms.",
                                ctx,)
 
+    @app_commands.command(name="ping")
+    async def ping_slash(self, interaction: discord.Interaction):
+        await interaction.response.send_message(embed=await utils.create_embed("Ping", f"Pong! Responded with a time of {round(self.bot.latency * 1000)}ms."), ephemeral=True)
+
     # GitHub command
+
 
     @commands.command(aliases=['gh'])
     async def github(self, ctx: commands.Context):

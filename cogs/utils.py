@@ -5,6 +5,7 @@ import os
 import json
 import chat_exporter
 import asyncio
+import sqlite3
 from config import config
 
 rolebuttons_roles = {
@@ -101,15 +102,21 @@ async def close_ticket(ctx: commands.Context, user):
                                    filename=f"transcript-{ctx.channel.name}.html")
     transcript_channel: discord.TextChannel = discord.utils.get(ctx.guild.text_channels,
                                                                 name="ticket-transcripts")
+    conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.dirname(__file__)), "tickets.db"))
+    conn.cursor().execute("DELETE FROM tickets WHERE member_id = ?", (user.id,))
+    conn.commit()
+    conn.close()
     embed = await create_embed()
     embed.set_author(name=f"{user.name}#{user.discriminator}",
                      icon_url=f"{user.display_avatar.url}")
     embed.add_field(name="**Ticket Owner**", value=f"{user.mention}", inline=True)
     embed.add_field(name="**Ticket Owner ID**", value=f"{user.id}", inline=True)
     embed.add_field(name="**Ticket Name**", value=f"{ctx.channel.name}", inline=True)
-    await transcript_channel.send(embed=embed, file=transcript_file)
+    message = await transcript_channel.send(embed=embed, file=transcript_file)
+    link = await chat_exporter.link(message)
+    await transcript_channel.send("Click this link to view the transcript online: " + link)
     await asyncio.sleep(5)
-    await ctx.channel.delete(reason="Ticket closed.")
+    await ctx.channel.delete()
 
 
 async def member_in_server(guild: discord.Guild, user_id: int):
@@ -118,3 +125,17 @@ async def member_in_server(guild: discord.Guild, user_id: int):
         return True
     except discord.HTTPException:
         return False
+
+
+async def get_ticket(member_id: int = None, thread_id: int = None):
+    if member_id is None and thread_id is None:
+        raise ValueError("You must provide either a member_id or thread_id.")
+    conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.dirname(__file__)), "tickets.db"))
+    c = conn.cursor()
+    if member_id is not None:
+        c.execute("SELECT * FROM tickets WHERE member_id = ?", (member_id,))
+    else:
+        c.execute("SELECT * FROM tickets WHERE thread_id = ?", (thread_id,))
+    ticket = c.fetchone()
+    conn.close()
+    return ticket

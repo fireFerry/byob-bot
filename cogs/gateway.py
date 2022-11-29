@@ -59,6 +59,8 @@ class Gateway(commands.Cog):
 
         if member.guild.id == config.gateway_guild_id:
             if self.bot.get_guild(config.guild_id) in member.mutual_guilds:
+                if discord.utils.get(self.bot.get_guild(config.guild_id).roles, name="Support Team") in await self.bot.get_guild(config.guild_id).fetch_member(member.id).roles:
+                    return
                 if not member.dm_channel:
                     await member.create_dm()
                 await member.dm_channel.send(embed=await utils.create_embed("Error",
@@ -85,14 +87,14 @@ class Gateway(commands.Cog):
             await channel.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_member_ban(self, _, member: discord.Member):
-        if member.guild.id == config.guild_id:
-            await self.bot.get_guild(config.gateway_guild_id).ban(member.id, reason="User banned from main server, synchronizing bans.")
+    async def on_member_ban(self, guild: discord.Guild, user):
+        if guild.id == config.guild_id:
+            await self.bot.get_guild(config.gateway_guild_id).ban(user=user, reason="User banned from main server, synchronizing bans.")
 
     @commands.Cog.listener()
-    async def on_member_unban(self, _, member: discord.Member):
-        if member.guild.id == config.guild_id:
-            await self.bot.get_guild(config.gateway_guild_id).unban(member.id, reason="User unbanned from main server, synchronizing unbans.")
+    async def on_member_unban(self, guild: discord.Guild, user):
+        if guild.id == config.guild_id:
+            await self.bot.get_guild(config.gateway_guild_id).unban(user=user, reason="User unbanned from main server, synchronizing unbans.")
 
     @commands.command()
     @commands.has_role('Support Team')
