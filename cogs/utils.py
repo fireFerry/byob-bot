@@ -6,6 +6,7 @@ import json
 import chat_exporter
 import asyncio
 import sqlite3
+from datetime import datetime
 from config import config
 
 rolebuttons_roles = {
@@ -16,21 +17,32 @@ rolebuttons_roles = {
     }
 
 
-async def create_embed(title: str = "", description: str = "", color=0x5cffb0):
+async def create_embed(title: str = "", description: str = "", color=0x5cffb0, author: discord.abc.User = None):
+    from cogs.basic import bot_avatar, bot_name
     embed = discord.Embed(
         title=title,
         description=description,
         color=color,
     )
+    if author:
+        embed.set_footer(text=f"{bot_name} v{config.byob_bot_version} - Requested by {author.name} at {datetime.utcnow().strftime('%H:%M:%S UTC')}", icon_url=bot_avatar)
+    else:
+        embed.set_footer(text=f"{bot_name} - v{config.byob_bot_version}", icon_url=bot_avatar)
     return embed
 
 
-async def send_embed(title: str = "", description: str = "", ctx: commands.Context = None, dmcommand: bool = True, color=0x5cffb0):
+async def send_embed(title: str = "", description: str = "", ctx: commands.Context = None, dmcommand: bool = True, color=0x5cffb0, author: discord.abc.User = None):
+    from cogs.basic import bot_avatar, bot_name
     embed = discord.Embed(
         title=title,
         description=description,
         color=color,
     )
+    if author:
+        embed.set_footer(
+            text=f"{bot_name} v{config.byob_bot_version} - Requested by {author.name} at {datetime.utcnow().strftime('%H:%M:%S UTC')}", icon_url=bot_avatar)
+    else:
+        embed.set_footer(text=f"{bot_name} - v{config.byob_bot_version}", icon_url=bot_avatar)
     if dmcommand:
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.message.delete()

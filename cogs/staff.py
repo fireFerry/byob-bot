@@ -42,7 +42,8 @@ class Staff(commands.Cog):
         await utils.send_embed("Autorole toggled",
                                f"{status} autorole for this server.",
                                ctx,
-                               False)
+                               False,
+                               author=ctx.author)
 
     # userinfo command that displays information about the user.
 
@@ -76,12 +77,14 @@ class Staff(commands.Cog):
             await utils.send_embed("Error",
                                    f"{ctx.author.mention} Please specify a user.",
                                    ctx,
-                                   False)
+                                   False,
+                                   author=ctx.author)
         elif isinstance(error, commands.MemberNotFound):
             await utils.send_embed("Error",
                                    "User is not in this server.",
                                    ctx,
-                                   False)
+                                   False,
+                                   author=ctx.author)
 
     # reactionrole command
 
@@ -90,8 +93,8 @@ class Staff(commands.Cog):
     async def reactionrole(self, ctx: commands.Context):
         await ctx.message.delete()
         embed = await utils.create_embed("**Roles**",
-                                         "Click the buttons on this message to toggle roles and access special channels!"
-                                         )
+                                         "Click the buttons on this message to toggle roles and access special channels!",
+                                         author=ctx.author)
         message = await ctx.send(embed=embed, view=RoleButtons(self.bot))
         path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config/reactionroles.json")
         with open(path, 'r') as f:
@@ -100,7 +103,8 @@ class Staff(commands.Cog):
         with open(path, 'w') as f:
             json.dump(reactionroles, f, indent=4)
         embed = await utils.create_embed("Button Role Setup",
-                                         f"The message id: {message.id} has been added to the list.")
+                                         f"The message id: {message.id} has been added to the list.",
+                                         author=ctx.author)
         await ctx.author.create_dm()
         await ctx.author.dm_channel.send(embed=embed)
 
@@ -118,7 +122,7 @@ class Staff(commands.Cog):
             if await utils.member_in_server(ctx.guild, ticket[0]):
                 send_member = await commands.MemberConverter().convert(ctx, str(ticket[0]))
                 embed = await utils.create_embed("Ticket Closed",
-                                                 "Ticket will be deleted in 5 seconds...")
+                                                 "Ticket will be deleted in 5 seconds...",)
             else:
                 send_member = await commands.UserConverter().convert(ctx, str(ticket[0]))
                 send_dm = False
@@ -137,7 +141,7 @@ class Staff(commands.Cog):
     @commands.has_role('Support Team')
     async def sync(self, ctx: commands.Context):
         await self.bot.tree.sync()
-        await utils.send_embed("Slash Commands", "Slash commands synced.", ctx, False)
+        await utils.send_embed("Slash Commands", "Slash commands synced.", ctx, False, author=ctx.author)
 
 
 async def setup(bot):

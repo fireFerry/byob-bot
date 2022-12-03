@@ -6,6 +6,7 @@ from discord.ext import commands
 from config import config
 import cogs.utils as utils
 
+
 bot = commands.Bot(command_prefix=config.prefix, help_command=None, intents=discord.Intents.all())
 
 
