@@ -81,16 +81,26 @@ async def reactionrole_msgid(guild_id: int):
     return msgid
 
 
-async def rolebuttons_apply(interaction: discord.Interaction, button: discord.Button, guild: discord.Guild):
-    if int(await reactionrole_msgid(guild.id)) == interaction.message.id:
-        if discord.utils.get(guild.roles, name=rolebuttons_roles[button.custom_id]) in interaction.user.roles:
-            await interaction.user.remove_roles(discord.utils.get(guild.roles, name=rolebuttons_roles[button.custom_id]))
+async def rolebuttons_apply(interaction: discord.Interaction, button: discord.ui.Button):
+    if int(await reactionrole_msgid(interaction.guild.id)) == interaction.message.id:
+        if discord.utils.get(interaction.guild.roles, name=rolebuttons_roles[button.custom_id]) in interaction.user.roles:
+            await interaction.user.remove_roles(discord.utils.get(interaction.guild.roles, name=rolebuttons_roles[button.custom_id]))
             await interaction.response.send_message(content=f"You have been removed from the role **{button.label}**.",
                                                     ephemeral=True)
         else:
-            await interaction.user.add_roles(discord.utils.get(guild.roles, name=rolebuttons_roles[button.custom_id]))
+            await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, name=rolebuttons_roles[button.custom_id]))
             await interaction.response.send_message(content=f"You have been given the role **{button.label}**.",
                                                     ephemeral=True)
+
+
+async def roleselect_apply(interaction: discord.Interaction, select: discord.ui.Select):
+    for item in select.options:
+        if item.value in select.values:
+            await interaction.user.add_roles(discord.utils.get(interaction.guild.roles, name=item.value))
+        else:
+            if discord.utils.get(interaction.guild.roles, name=item.value) in interaction.user.roles:
+                await interaction.user.remove_roles(discord.utils.get(interaction.guild.roles, name=item.value))
+    await interaction.response.send_message(embed=await create_embed(title="Role Selection", description="Your roles have been updated.", author=interaction.user), ephemeral=True)
 
 
 async def togglerole(member: discord.Member, role: discord.Role, ctx: commands.Context):

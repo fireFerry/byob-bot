@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime, timedelta
 import cogs.utils as utils
-from cogs.reactionroles import RoleButtons
+from cogs.reactionroles import RoleButtons, RoleSelect
 
 
 class Staff(commands.Cog):
@@ -107,6 +107,14 @@ class Staff(commands.Cog):
                                          author=ctx.author)
         await ctx.author.create_dm()
         await ctx.author.dm_channel.send(embed=embed)
+
+    # roleselect command
+
+    @commands.command()
+    @commands.has_role('Support Team')
+    async def roleselect(self, ctx: commands.Context):
+        await ctx.message.delete()
+        await ctx.send(embed=await utils.create_embed("Role selection", "Choose your roles here and access special channels!"), view=RoleSelect())
 
     # ticket close command
 
